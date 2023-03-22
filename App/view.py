@@ -44,8 +44,11 @@ def new_controller():
     """
         Se crea una instancia del controlador
     """
-    #TODO: Llamar la función del controlador donde se crean las estructuras de datos
-    pass
+    #CHECK: Llamar la función del controlador donde se crean las estructuras de datos
+
+    control = controller.new_controller()
+
+    return control
 
 
 def print_menu():
@@ -61,13 +64,83 @@ def print_menu():
     print("9- Ejecutar Requerimiento 8")
     print("0- Salir")
 
+#DEPRECATED Funcion a quitarse en la sustentacion
+def printchooseCSV():
+    print('\nIngrese la representación de los datos que quiere usar: ')
+    print(' 1. -small')
+    print(' 2. -5pct')
+    print(' 3. -10pct')
+    print(' 4. -20pct')
+    print(' 5. -30pct')
+    print(' 6. -50pct')
+    print(' 7. -80pct')
+    print(' 8. -large')
 
-def load_data(control):
+#DEPRECATED Funcion a quitarse en la sustentacion
+
+def fileChoose():
+    """
+
+    Da opciones al usuario para que escoja la representación de los datos de su preferencia
+
+    Returns:
+
+        El sufijo de la representación de los datos escogida
+    """
+    fileChoose = False
+    while fileChoose == False:
+
+        suffixFileChoose = input('Opción seleccionada: ')
+        if int(suffixFileChoose[0]) == 1:
+            suffix = '-small'
+            print('\nSeleciono el archivo ' + suffix)
+            suffix += '.csv'
+            fileChoose = True
+        elif int(suffixFileChoose[0]) == 2:
+            suffix = '-5pct'
+            print('\nSeleciono el archivo ' + suffix)
+            suffix += '.csv'
+            fileChoose = True
+        elif int(suffixFileChoose[0]) == 3:
+            suffix = '-10pct'
+            print('\nSeleciono el archivo ' + suffix)
+            suffix += '.csv'
+            fileChoose = True
+        elif int(suffixFileChoose[0]) == 4:
+            suffix = '-20pct'
+            print('\nSeleciono el archivo ' + suffix)
+            suffix += '.csv'
+            fileChoose = True
+        elif int(suffixFileChoose[0]) == 5:
+            suffix = '-30pct'
+            print('\nSeleciono el archivo ' + suffix)
+            suffix += '.csv'
+            fileChoose = True
+        elif int(suffixFileChoose[0]) == 6:
+            suffix = '-50pct'
+            print('\nSeleciono el archivo ' + suffix)
+            suffix += '.csv'
+            fileChoose = True
+        elif int(suffixFileChoose[0]) == 7:
+            suffix = '-80pct'
+            print('\nSeleciono el archivo ' + suffix)
+            suffix += '.csv'
+            fileChoose = True
+        elif int(suffixFileChoose[0]) == 8:
+            suffix = '-large'
+            print('\nSeleciono el archivo ' + suffix)
+            suffix += '.csv'
+            fileChoose = True
+
+    return suffix
+def load_data(control, filename):
     """
     Carga los datos
     """
-    #TODO: Realizar la carga de datos
-    pass
+    #CHECK: Realizar la carga de datos
+    controller.load_data(control, filename)
+
+    return control
 
 
 def print_data(control, id):
@@ -156,8 +229,13 @@ if __name__ == "__main__":
         inputs = input('Seleccione una opción para continuar\n')
         try:
             if int(inputs) == 1:
+                #DEPRECATED Funciones a quitarse en la sustentacion por que se confunde el usuario
+                printchooseCSV()
+                suffix = fileChoose()
+
                 print("Cargando información de los archivos ....\n")
-                data = load_data(control)
+                data = load_data(control, suffix)
+
             elif int(inputs) == 2:
                 print_req_1(control)
 

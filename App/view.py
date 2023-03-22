@@ -345,7 +345,7 @@ if __name__ == "__main__":
                 printHeader("Charge Data", msg1, msg2)
                 print_memory_time(analyze)
                 print(print_charge_data(control))
-
+                
             elif int(inputs) == 2:
                 print_req_1(control)
 

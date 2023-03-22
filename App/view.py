@@ -47,9 +47,16 @@ def new_controller():
     """
     #CHECK: Llamar la función del controlador donde se crean las estructuras de datos
 
-    control = controller.new_controller()
+    control = controller.new_controller('PROBING', 0.5)
 
     return control
+
+def load_data(control, filename, memflag=True):
+    """
+    Carga los datos
+    """
+    #CHECK: Realizar la carga de datos
+    return controller.load_data(control, filename, memflag)
 
 
 def print_menu():
@@ -134,12 +141,21 @@ def fileChoose():
             fileChoose = True
 
     return suffix
-def load_data(control, filename):
+
+def printHeader(rqn, msg_rq, msg_answer):
     """
-    Carga los datos
+    Imprime en consola los encabezados de cada requerimiento
+
+    Args:
+        rqn (_type_):   Numero del requerimiento
+        msg_rq (_type_): Mensaje del requerimiento (Inputs)
+        msg_answer (_type_): Mensaje de Respuesta
     """
-    #CHECK: Realizar la carga de datos
-    controller.load_data(control, filename)
+    print("\n============= Req No. " + str(rqn) + " Inputs =============")
+    print(msg_rq)
+    print("\n============= Req No. " + str(rqn) + " Answer =============" )
+    print(msg_answer)
+    print("------------------------------------------------------------------------")
 
     return control
 
@@ -172,6 +188,23 @@ def print_charge_data(control):
         else:
             print(f"\nThere are {lt.size(data)} actividades economicas in {year}\n")
             print(first_and_last(data, column_names=columns, n=3))
+
+def print_memory_time(analyze):
+
+    if isinstance(analyze, (list, tuple)) is True:
+        print("Tiempo [ms]: ", f"{analyze[0]:.3f}", "||",
+              "Memoria [kB]: ", f"{analyze[1]:.3f}")
+    else:
+        print("Tiempo [ms]: ", f"{analyze:.3f}")
+
+def castBoolean(value):
+    """
+    Convierte un valor a booleano
+    """
+    if value in ('True', 'true', 'TRUE', 'T', 't', '1', 1, True):
+        return True
+    else:
+        return False
 
 
 def print_data(control, id):
@@ -281,6 +314,8 @@ def simple_table(lst, column_names):
 
     return tabulate(table, tablefmt="grid", maxcolwidths=20, headers=column_names)
 
+
+
 # Se crea el controlador asociado a la vista
 control = new_controller()
 
@@ -299,10 +334,16 @@ if __name__ == "__main__":
                 #DEPRECATED Funciones a quitarse en la sustentacion por que se confunde el usuario
                 printchooseCSV()
                 suffix = fileChoose()
-
+                print("Desea observar el uso de memoria? (True/False)")
+                mem = input("Respuesta: ")
+                mem = castBoolean(mem)
                 print("Cargando información de los archivos ....\n")
-                data = load_data(control, suffix)
-
+                analyze = load_data(control, suffix, mem)
+                all_size = lt.size(control["model"]["all_data"])
+                msg1 = f"Carga de datos con archivo {suffix}"
+                msg2 = f"Se cargaron {all_size} datos de los archivos"
+                printHeader("Charge Data", msg1, msg2)
+                print_memory_time(analyze)
                 print(print_charge_data(control))
 
             elif int(inputs) == 2:

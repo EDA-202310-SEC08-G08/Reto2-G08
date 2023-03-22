@@ -31,34 +31,47 @@ El controlador se encarga de mediar entre la vista y el modelo.
 """
 
 
-def new_controller():
+def new_controller(maptype, loadfactor):
     """
     Crea una instancia del modelo
     """
     control = {
         "model": None
     }
-    control["model"] = model.new_data_structs()
+    control["model"] = model.new_data_structs(maptype, loadfactor)
     return control
 
 
 # Funciones para la carga de datos
 
-def load_data(control, filename):
+def load_data(control, filename, memflag):
     """
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
     rute = cf.data_dir + f"DIAN/Salida_agregados_renta_juridicos_AG{filename}"
     input_file = csv.DictReader(open(rute, encoding="utf-8"))
+    start_time = get_time()
+
+    if memflag is True:
+        tracemalloc.start()
+        start_memory = get_memory()
 
     for register in input_file:
         model.add_data(control["model"], register)
 
-    return control["model"]
+    stop_time = get_time()
+    time_delta = delta_time(start_time, stop_time)
 
+    if memflag is True:
+        stop_memory = get_memory()
+        tracemalloc.stop()
+        # calcula la diferencia de memoria
+        memory_delta = delta_memory(stop_memory, start_memory)
+        # respuesta con los datos de tiempo y memoria
+        return time_delta, memory_delta
 
-
+    return time_delta
 
 
 # Funciones de ordenamiento

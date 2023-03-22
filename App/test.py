@@ -28,16 +28,16 @@ def memory_and_time():
 
         control = new_controller("PROBING", i)
         analyze = controller.load_data(control, "-large.csv", True)
-
-        row = [i, analyze[0], analyze[1]]
+        time = controller.load_data(control, "-large.csv", False)
+        row = [i, time, analyze[1]]
         table_probing.append(row)
 
     for i in loadfactor_chaining:
 
         control = new_controller("CHAINING", i)
         analyze = controller.load_data(control, "-large.csv", True)
-
-        row = [i, analyze[0], analyze[1]]
+        time = controller.load_data(control, "-large.csv", False)
+        row = [i, time, analyze[1]]
         table_chaining.append(row)
 
     return table_probing, table_chaining

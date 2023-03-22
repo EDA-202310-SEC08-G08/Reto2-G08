@@ -59,14 +59,17 @@ def load_data(control, filename):
 
 
 
+
+
 # Funciones de ordenamiento
 
-def sort(control):
+def sort(lst):
     """
     Ordena los datos del modelo
     """
     #TODO: Llamar la función del modelo para ordenar los datos
-    pass
+
+    return model.sort(lst, model.sc_by_element)
 
 
 # Funciones de consulta sobre el catálogo

@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
-
+#%%
 import config as cf
 import sys
 import controller
@@ -28,6 +28,7 @@ from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
+from DISClib.Algorithms.Sorting import quicksort as qs
 assert cf
 from tabulate import tabulate
 import traceback
@@ -142,6 +143,36 @@ def load_data(control, filename):
 
     return control
 
+def print_charge_data(control):
+    columns = ['Año',
+               'Código actividad económica',
+               'Nombre actividad económica',
+               'Código sector económico',
+               'Nombre sector económico',
+               'Código subsector económico',
+               'Nombre subsector económico',
+               'Total ingresos netos',
+               'Total costos y gastos',
+               'Total saldo a pagar',
+               'Total saldo a favor',
+               ]
+    map_by_years = control['model']['map_by_year']
+
+    years = mp.keySet(map_by_years)
+    years = controller.sort(years)
+
+    for year in lt.iterator(years):
+
+        entry = mp.get(map_by_years, year)
+        data = me.getValue(entry)["data"]
+
+        if lt.size(data) < 6:
+            print(f'\nThere are only {lt.size(data)} actividades economicas in {year}\n')
+            print(simple_table(data, column_names=columns))
+        else:
+            print(f"\nThere are {lt.size(data)} actividades economicas in {year}\n")
+            print(first_and_last(data, column_names=columns, n=3))
+
 
 def print_data(control, id):
     """
@@ -213,6 +244,42 @@ def print_req_8(control):
     # TODO: Imprimir el resultado del requerimiento 8
     pass
 
+#ADD Funcion para imprimir los datos en tablas (Tabulate)
+
+def new_element(element, column_names):
+    """
+    Crea un nuevo elemento para agregar a la tabla
+    """
+    new_element = {}
+    for column in column_names:
+        new_element[column] = element[column]
+
+    return list(new_element.values())
+
+def first_and_last(lst, n, column_names):
+    table = []
+
+    start_list = lt.subList(lst, 1, n)
+    end_list = lt.subList(lst, lt.size(lst)-n+1, n)
+
+    for element in lt.iterator(start_list):
+        element = new_element(element, column_names)
+        table.append(element)
+    for element in lt.iterator(end_list):
+        element = new_element(element, column_names)
+        table.append(element)
+
+    return tabulate(table, tablefmt="grid", maxcolwidths=20, headers=column_names)
+
+def simple_table(lst, column_names):
+
+    table = []
+
+    for element in lt.iterator(lst):
+        element = new_element(element, column_names)
+        table.append(element)
+
+    return tabulate(table, tablefmt="grid", maxcolwidths=20, headers=column_names)
 
 # Se crea el controlador asociado a la vista
 control = new_controller()
@@ -235,6 +302,8 @@ if __name__ == "__main__":
 
                 print("Cargando información de los archivos ....\n")
                 data = load_data(control, suffix)
+
+                print(print_charge_data(control))
 
             elif int(inputs) == 2:
                 print_req_1(control)
@@ -263,10 +332,12 @@ if __name__ == "__main__":
             elif int(inputs) == 0:
                 working = False
                 print("\nGracias por utilizar el programa")
-                
+
             else:
                 print("Opción errónea, vuelva a elegir.\n")
         except Exception as exp:
             print("ERR:", exp)
             traceback.print_exc()
     sys.exit(0)
+
+# %%

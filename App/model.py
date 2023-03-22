@@ -259,9 +259,24 @@ def sort_criteria(data_1, data_2):
     pass
 
 
-def sort(data_structs):
+
+def sc_by_element(data_1, data_2):
+    """
+    Función encargada de comparar dos datos
+    """
+    if data_1 > data_2:
+        return False
+    else:
+        return True
+
+
+
+def sort(lst, sort_criteria):
     """
     Función encargada de ordenar la lista con los datos
     """
     #TODO: Crear función de ordenamiento
-    pass
+
+    ordered_list = merg.sort(lst, sort_criteria)
+
+    return ordered_list

@@ -30,6 +30,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
 from DISClib.ADT import map as mp
+from DISClib.ADT import mapentry as om
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Algorithms.Sorting import insertionsort as ins
@@ -51,8 +52,19 @@ def new_data_structs():
     Inicializa las estructuras de datos del modelo. Las crea de
     manera vacía para posteriormente almacenar la información.
     """
-    #TODO: Inicializar las estructuras de datos
-    pass
+    #CHECK: Inicializar las estructuras de datos
+    data_structs = {
+        "all_data": None,
+    }
+
+    #NOTE Lista de los datos "brutos" con toda la informacion desordenada
+    data_structs["all_data"] = lt.newList(datastructure="ARRAY_LIST", cmpfunction=cmp_by_id)
+
+    data_structs["map_by_year"] = mp.newMap(numelements=10,
+                                            maptype="PROBING",
+                                            loadfactor=0.5,)
+
+    return data_structs
 
 
 # Funciones para agregar informacion al modelo
@@ -62,18 +74,62 @@ def add_data(data_structs, data):
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
-    pass
+    d = new_data(data)
+    lt.addLast(data_structs["all_data"], d)
+    add_register_by_year(data_structs, data)
 
+    return data_structs
+
+def add_register_by_year(data_structs, data):
+
+    map_by_year = data_structs["map_by_year"]
+
+    year = data["Año"]
+
+    exist = mp.contains(map_by_year, year)
+
+    if not exist:
+
+        value = new_year(year)
+        mp.put(map_by_year, year, value)
+        entry = mp.get(map_by_year, year)
+        year_data = me.getValue(entry)["data"]
+        lt.addLast(year_data, data)
+    else:
+        entry = mp.get(map_by_year, year)
+        year_data = me.getValue(entry)["data"]
+        lt.addLast(year_data, data)
+
+    return data_structs
 
 # Funciones para creacion de datos
 
-def new_data(id, info):
+def new_data(info):
     """
     Crea una nueva estructura para modelar los datos
     """
-    #TODO: Crear la función para estructurar los datos
-    pass
+    try:
+        info["id"] = int(info["Año"] + info['Código actividad económica'])
+    except:
+        i = 0
+        for char in info["Código actividad económica"]:
+            if char in [" ","/"]:
+                info["Código actividad económica"] = info["Código actividad económica"][0:i]
+                break
+            else:
+                i += 1
+        info["id"] = int(info["Año"] + info["Código actividad económica"])
 
+    return info
+
+def new_year(year):
+
+    structure = {'year': year,
+                 'data' : None}
+
+    structure['data'] = lt.newList(datastructure="ARRAY_LIST", cmpfunction=cmp_by_id)
+
+    return structure
 
 # Funciones de consulta
 
@@ -157,16 +213,37 @@ def req_8(data_structs):
     pass
 
 
-# Funciones utilizadas para comparar elementos dentro de una lista
+#NOTE Funciones utilizadas para comparar elementos dentro de una lista
 
-def compare(data_1, data_2):
+def cmp_by_id(data_1, data_2):
     """
     Función encargada de comparar dos datos
     """
-    #TODO: Crear función comparadora de la lista
-    pass
+    if data_1["id"] > data_2["id"]:
+        return 1
+    elif data_1["id"] < data_2["id"]:
+        return -1
+    else:
+        return 0
 
-# Funciones de ordenamiento
+#NOTE Funciones utilizadas para comparar las llaves dentro de un mapa
+
+
+def compare_map_keys(year, entry):
+    """
+    Compara dos llaves de un mapa
+    """
+
+    year_key = me.getKey(entry)
+
+    if (int(year) == int(year_key)):
+        return 0
+    elif (int(year) > int(year_key)):
+        return 1
+    else:
+        return -1
+
+#NOTE Funciones de ordenamiento
 
 
 def sort_criteria(data_1, data_2):

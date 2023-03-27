@@ -65,7 +65,7 @@ class List:
         return lt.iterator(self.list)
     
     def __type__(self):
-        return self.datastructure
+        return f"ADT : list , Datastructure: {self.datastructure}"
     
     def addFirst(self, element):
         
@@ -149,15 +149,49 @@ class Stack:
         self.size = st.size(self.stack)
 
     def __str__(self) -> str:
-        return str(self.stack)
+        if self.datastructure == "ARRAY_LIST":
+            return str(self.stack["elements"])
+        else:
+            return str(self.stack["first"])
 
-a = st.newStack()
+    def __len__(self) -> int:
 
-st.push(a, 1)
-st.push(a, 2)
-st.push(a, 3)
+        return st.size(self.stack)
 
-print(a)
+    def __type__(self):
+
+        return f"ADT : stack , Datastructure: {self.datastructure}"
+
+    def elements(self):
+        if self.datastructure == "ARRAY_LIST":
+            return str(self.stack["elements"])
+        else:
+            return str(self.stack["first"])
+
+    def push(self, element):
+
+        st.push(self.stack, element)
+
+    def pop(self):
+
+        return st.pop(self.stack)
+
+    def isEmpty(self) -> bool:
+
+        return st.isEmpty(self.stack)
+
+    def top(self):
+
+        return st.top(self.stack)
+
+    def size(self) -> int:
+
+        return st.size(self.stack)
+
+
+
+
+
 
 
 

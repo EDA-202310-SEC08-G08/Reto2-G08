@@ -44,11 +44,19 @@ class List:
         
         self.datastructure = datastructure
         self.cmpfunction = cmpfunction
-        self.elements = self.list["elements"]
         
+        if datastructure == "ARRAY_LIST":
+            self.elements = self.list["elements"]
+        else:
+            self.elements = self.list["first"]
+
     
     def __str__(self) -> str:
-        return str(self.list["elements"])
+
+        if self.datastructure == "ARRAY_LIST":
+            return str(self.elements)
+        else:
+            return str(self.list["first"])
     
     def __len__(self) -> int:
         return lt.size(self.list)
@@ -134,11 +142,14 @@ class List:
     
 
 
+    
+
+
 
 
 
     
-    
+
         
         
         

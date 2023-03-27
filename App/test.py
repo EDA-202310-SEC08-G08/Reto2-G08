@@ -1,6 +1,7 @@
 import controller
 import model
 from tabulate import tabulate
+import main_adts as adt
 
 def new_controller(maptype, loadfactor):
     """
@@ -49,8 +50,11 @@ def print_results(table_probing, table_chaining):
     print(tabulate(table_chaining, headers=["Load Factor", "Tiempo", "Memoria"], tablefmt="fancy_grid"))
 
 
-table_probing, table_chaining = memory_and_time()
-print_results(table_probing, table_chaining)
+def test_hash():
+    table_probing, table_chaining = memory_and_time()
+    print_results(table_probing, table_chaining)
+
+
 
 
 

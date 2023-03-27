@@ -139,10 +139,25 @@ class List:
         sorted_list = merg.sort(self.list, sort_criteria)
 
         return sorted_list
-    
 
-
+class Stack:
     
+    def __init__(self, datastructure = "DOUBLE_LINKED"):
+
+        self.stack = st.newStack(datastructure)
+        self.datastructure = datastructure
+        self.size = st.size(self.stack)
+
+    def __str__(self) -> str:
+        return str(self.stack)
+
+a = st.newStack()
+
+st.push(a, 1)
+st.push(a, 2)
+st.push(a, 3)
+
+print(a)
 
 
 

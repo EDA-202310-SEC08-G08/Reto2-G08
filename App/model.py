@@ -26,6 +26,7 @@
 
 
 import config as cf
+import main_adts as adt
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
@@ -280,3 +281,4 @@ def sort(lst, sort_criteria):
     ordered_list = merg.sort(lst, sort_criteria)
 
     return ordered_list
+

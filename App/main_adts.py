@@ -146,7 +146,7 @@ class Stack:
 
         self.stack = st.newStack(datastructure)
         self.datastructure = datastructure
-        self.size = st.size(self.stack)
+    
 
     def __str__(self) -> str:
         if self.datastructure == "ARRAY_LIST":
@@ -194,7 +194,7 @@ class Queue:
 
         self.queue = qu.newQueue(datastructure)
         self.datastructure = datastructure
-        self.size = qu.size(self.queue)
+        
 
     def __str__(self) -> str:
         if self.datastructure == "ARRAY_LIST":
@@ -240,7 +240,7 @@ class HashMap():
         self.maptype = maptype
         self.loadfactor = loadfactor
         self.cmpfunction = cmpfunction
-        self.size = mp.size(self.map)
+        
 
     def __str__(self) -> str:
 
@@ -250,7 +250,7 @@ class HashMap():
 
         return mp.size(self.map)
 
-    def __type__(self) -> str:
+    def type(self) -> str:
 
         return f"ADT : map , Datastructure: {self.maptype}"
 
@@ -284,34 +284,4 @@ class HashMap():
 
     def valueSet(self):
 
-        return mp.valueSet(self.map)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-        
-        
-        
-        
-    
-    
-    
-        
-        
-        
+        return mp.valueSet(self.map)        

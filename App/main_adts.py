@@ -142,7 +142,7 @@ class List:
 
 class Stack:
     
-    def __init__(self, datastructure = "DOUBLE_LINKED"):
+    def __init__(self, datastructure = "DOUBLE_LINKED") -> object:
 
         self.stack = st.newStack(datastructure)
         self.datastructure = datastructure
@@ -158,11 +158,11 @@ class Stack:
 
         return st.size(self.stack)
 
-    def __type__(self):
+    def __type__(self) -> str:
 
         return f"ADT : stack , Datastructure: {self.datastructure}"
 
-    def elements(self):
+    def elements(self) -> str:
         if self.datastructure == "ARRAY_LIST":
             return str(self.stack["elements"])
         else:
@@ -187,6 +187,112 @@ class Stack:
     def size(self) -> int:
 
         return st.size(self.stack)
+
+class Queue:
+
+    def __init__(self, datastructure)-> object:
+
+        self.queue = qu.newQueue(datastructure)
+        self.datastructure = datastructure
+        self.size = qu.size(self.queue)
+
+    def __str__(self) -> str:
+        if self.datastructure == "ARRAY_LIST":
+            return str(self.queue["elements"])
+        else:
+            return str(self.queue["first"])
+    def __len__(self) -> int:
+
+        return qu.size(self.queue)
+
+    def __type__(self) -> str:
+
+        return f"ADT : queue , Datastructure: {self.datastructure}"
+
+    def elements(self) -> str:
+        if self.datastructure == "ARRAY_LIST":
+            return str(self.queue["elements"])
+        else:
+            return str(self.queue["first"])
+    def enqueue(self, element):
+
+        qu.enqueue(self.queue, element)
+
+    def dequeue(self):
+
+        return qu.dequeue(self.queue)
+    def peek(self):
+
+        return qu.peek(self.queue)
+
+    def isEmpty(self) -> bool:
+
+        return qu.isEmpty(self.queue)
+    def size(self) -> int:
+
+        return qu.size(self.queue)
+
+class HashMap():
+
+    def __init__(self, numelements=17, maptype = "CHAINING", loadfactor = 4.0, cmpfunction = None):
+
+        self.map = mp.newMap(numelements=numelements, maptype=maptype, loadfactor=loadfactor, cmpfunction=cmpfunction)
+        self.maptype = maptype
+        self.loadfactor = loadfactor
+        self.cmpfunction = cmpfunction
+        self.size = mp.size(self.map)
+
+    def __str__(self) -> str:
+
+        return str(mp.keySet(self.map))
+
+    def __len__(self) -> int:
+
+        return mp.size(self.map)
+
+    def __type__(self) -> str:
+
+        return f"ADT : map , Datastructure: {self.maptype}"
+
+    def put(self, key, value):
+
+        mp.put(self.map, key, value)
+
+    def get(self, key):
+
+        return mp.get(self.map, key)
+
+    def remove(self, key):
+
+        return mp.remove(self.map, key)
+
+    def contains(self, key):
+
+        return mp.contains(self.map, key)
+
+    def isEmpty(self) -> bool:
+
+        return mp.isEmpty(self.map)
+
+    def size(self) -> int:
+
+        return mp.size(self.map)
+
+    def keySet(self):
+
+        return mp.keySet(self.map)
+
+    def valueSet(self):
+
+        return mp.valueSet(self.map)
+
+
+
+
+
+
+
+
 
 
 

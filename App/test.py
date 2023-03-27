@@ -2,6 +2,7 @@ import controller
 import model
 from tabulate import tabulate
 import main_adts as adt
+from DISClib.DataStructures import mapentry as me
 
 def new_controller(maptype, loadfactor):
     """
@@ -54,6 +55,45 @@ def test_hash():
     table_probing, table_chaining = memory_and_time()
     print_results(table_probing, table_chaining)
 
+
+def compare_map_keys(year, entry):
+    """
+    Compara dos llaves de un mapa
+    """
+
+    year_key = me.getKey(entry)
+
+    if (int(year) == int(year_key)):
+        return 0
+    elif (int(year) > int(year_key)):
+        return 1
+    else:
+        return -1
+
+my_map = adt.HashMap(3, "CHAINING", 4, compare_map_keys)
+
+my_map.put("2018", "Hola 2018")
+my_map.put("2019", "Hola 2019")
+my_map.put("2020", "Hola 2020")
+my_map.put("2021", "Hola 2021")
+
+print(my_map.maptype)
+
+print(my_map.get("2018"))
+
+print(type(my_map))
+
+my_map.remove("2018")
+
+str(my_map)
+
+print(my_map.contains("2018"))
+print(my_map.contains("2019"))
+
+print(my_map.size())
+print(len(my_map))
+
+print(my_map.type())
 
 
 

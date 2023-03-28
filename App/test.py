@@ -104,10 +104,6 @@ def test_search_algorithms_erro():
 
 
 
-print(test_search_algorithms())
-print(test_search_algorithms_erro())
-
-
 
 
 

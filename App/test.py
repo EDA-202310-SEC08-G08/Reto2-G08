@@ -1,6 +1,8 @@
 import controller
 import model
 from tabulate import tabulate
+import main_adts as adt
+from random import *
 
 def new_controller(maptype, loadfactor):
     """
@@ -48,9 +50,69 @@ def print_results(table_probing, table_chaining):
     print("Tabla de tiempos y memoria para el tipo de tabla Hashing: Chaining")
     print(tabulate(table_chaining, headers=["Load Factor", "Tiempo", "Memoria"], tablefmt="fancy_grid"))
 
+def cmpNormal(data1, data2):
 
-table_probing, table_chaining = memory_and_time()
-print_results(table_probing, table_chaining)
+    if data1 > data2:
+        return False
+    else:
+        return True
+
+def search_number(list: adt.List):
+
+    a = randint(0,100)
+    if list.isPresent(a) != 0:
+        print(f"The number is : {a}")
+        return a
+    else:
+        return search_number(list)
+
+
+
+def test_search_algorithms():
+
+    my_list = adt.List("ARRAY_LIST")
+
+    for i in range(200):
+
+        my_list.addLast(randint(0, 100))
+
+    my_list.sort(cmpNormal)
+
+    number = search_number(my_list)
+
+    pos = my_list.binarySearch(number)
+
+    print(f"The pos of the element is: {pos}")
+    print(f"The element must be: {my_list.getElement(pos)}")
+
+    return my_list.elements
+
+def test_search_algorithms_erro():
+
+    my_list = adt.List("ARRAY_LIST")
+
+    for i in range(200):
+
+        my_list.addLast(randint(0, 100))
+
+    number = search_number(my_list)
+
+    pos = my_list.binarySearch(number)
+
+    return pos
+
+
+
+
+print(test_search_algorithms())
+print(test_search_algorithms_erro())
+
+
+
+
+
+
+
 
 
 

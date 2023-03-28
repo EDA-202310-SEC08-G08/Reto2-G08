@@ -35,21 +35,29 @@ assert cf
 
 class List:
     
-    def __init__(self, datastructure = "SINGLE_LINKED", cmpfunction = None, adt = None):
+    def __init__(self, datastructure = "ARRAY_LIST" , cmpfunction = None, adt = None, sorted = False):
         
         if adt is not None:
             self.list = adt
+            self.datastructure = adt["type"]
+            self.cmpfunction = adt["cmpfunction"]
+            self.sorted = sorted
+            if self.datastructure == "ARRAY_LIST":
+                self.elements = adt["elements"]
+            else:
+                self.elements = adt["first"]
+
         else:
             self.list = lt.newList(datastructure, cmpfunction)
         
-        self.datastructure = datastructure
-        self.cmpfunction = cmpfunction
-        self.sorted = False
-        
-        if datastructure == "ARRAY_LIST":
-            self.elements = self.list["elements"]
-        else:
-            self.elements = self.list["first"]
+            self.datastructure = datastructure
+            self.cmpfunction = cmpfunction
+            self.sorted = sorted
+
+            if self.datastructure == "ARRAY_LIST":
+                self.elements = self.list["elements"]
+            else:
+                self.elements = self.list["first"]
 
     
     def __str__(self) -> str:
@@ -126,7 +134,11 @@ class List:
     
     def subList(self, pos1, numElements):
         
-        return lt.subList(self.list, pos1, numElements)
+        sub_list = lt.subList(self.list, pos1, numElements)
+
+        sub_list = List(adt=sub_list)
+
+        return sub_list
     
     def iterator(self):
         
@@ -147,32 +159,36 @@ class List:
 
         return sorted_list
 
-    def isSorted(self, search_function: function):
+    def isSorted(func):
 
-        if self.sorted:
+        def decorator(self, *args):
 
-            return search_function(*args)
+            if self.sorted:
 
-        else:
+                return func(self, *args)
 
-            return "La lista no esta ordenada"
+            else:
+
+                return "La lista no esta ordenada"
+
+        return decorator
 
 
     #OPTIMIZE Algoritmos de Busqueda
 
     @isSorted
-    def linealSearch(self,element,parameter):
+    def linealSearch(self,element):
         pos = None
         while pos == None:
             for list_element in self.list:
-                if lt.getElement(self.list,album_pos)[parameter] == element:
-                    pos = album_pos
+                if lt.getElement(self.list, pos) == element:
+                    pos = pos
                     break
             element += 1
         return pos
 
     @isSorted
-    def binarySearch(self, element, parameter):
+    def binarySearch(self, element):
         """
         Busqueda Binaria de un elemento en una lista ordenada ascendentemente
         Resultado: Indice en la lista donde se encuentra el elemento. -1 si no se encuentra.
@@ -184,17 +200,17 @@ class List:
         while i <= f and not found:
             # calcular la posicion de la mitad entre i y f
             m = (i + f) // 2
-            if lt.getElement(self.list, m)[parameter] == element:
+            if lt.getElement(self.list, m) == element:
                 pos = m
                 found = True
-            elif lt.getElement(self.list, m)[parameter] > element:
+            elif lt.getElement(self.list, m) > element:
                 f = m - 1
             else:
                 i = m + 1
         return pos
 
     @isSorted
-    def binarySearchMin(self, element, parameter):
+    def binarySearchMin(self, element):
         m = 0
         i = 0
         f = lt.size(self.list)
@@ -202,24 +218,24 @@ class List:
         found = False
         while i <= f and not found:
             m = (i + f) // 2
-            if lt.getElement(self.list, m)[parameter] == element:
+            if lt.getElement(self.list, m) == element:
                 pos = m
                 found = True
-            elif lt.getElement(self.list, m)[parameter] > element:
+            elif lt.getElement(self.list, m) > element:
                 f = m - 1
             else:
                 i = m + 1
         if found == True:
-            while lt.getElement(self.list, pos - 1)[parameter] == element:
+            while lt.getElement(self.list, pos - 1) == element:
                 pos -= 1
-        elif lt.getElement(self.list, m)[parameter] > element:
+        elif lt.getElement(self.list, m) > element:
             pos = m
-            while lt.getElement(self.list, pos - 1)[parameter] > element:
+            while lt.getElement(self.list, pos - 1) > element:
                 pos -= 1
         return pos
 
     @isSorted
-    def binarySearchMax(self, element, parameter):
+    def binarySearchMax(self, element):
         m = 0
         i = 0
         f = lt.size(self.list)
@@ -227,19 +243,19 @@ class List:
         found = False
         while i <= f and not found:
             m = (i + f) // 2
-            if lt.getElement(self.list, m)[parameter] == element:
+            if lt.getElement(self.list, m) == element:
                 pos = m
                 found = True
-            elif lt.getElement(self.list, m)[parameter] > element:
+            elif lt.getElement(self.list, m) > element:
                 f = m - 1
             else:
                 i = m + 1
         if found == True:
-            while lt.getElement(self.list, pos + 1)[parameter] == element:
+            while lt.getElement(self.list, pos + 1) == element:
                 pos += 1
-        elif lt.getElement(self.list, m)[parameter] < element:
+        elif lt.getElement(self.list, m) < element:
             pos = m
-            while lt.getElement(self.list, pos + 1)[parameter] > element:
+            while lt.getElement(self.list, pos + 1) > element:
                 pos += 1
         return pos
 

@@ -27,6 +27,7 @@
 
 import config as cf
 import main_adts as adt
+import datetime
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
@@ -260,7 +261,6 @@ def sort_criteria(data_1, data_2):
     pass
 
 
-
 def sc_by_element(data_1, data_2):
     """
     Función encargada de comparar dos datos
@@ -282,3 +282,22 @@ def sort(lst, sort_criteria):
 
     return ordered_list
 
+#OPTIMIZE Objectos
+
+
+class DataStructs:
+
+    def __init__(self):
+
+        self.all_data = None
+        self.map_by_year = None
+
+
+
+
+
+
+class EconomicActivity:
+
+    def __init__(self) -> None:
+        pass

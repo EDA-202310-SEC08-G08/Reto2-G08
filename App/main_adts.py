@@ -44,6 +44,7 @@ class List:
         
         self.datastructure = datastructure
         self.cmpfunction = cmpfunction
+        self.sorted = False
         
         if datastructure == "ARRAY_LIST":
             self.elements = self.list["elements"]
@@ -131,14 +132,116 @@ class List:
         
         return lt.iterator(self.list)
     
-    def sort(self, sort_criteria = None):
+    #OPTIMIZE Algoritmos de Ordenamiento
+    #NOTE Se agregan los algoritmos de ordenamiento para listas
 
+    def sort(self, sort_criteria = None):
+        #CHANGED No es posible ordenar con una funcion de comparacion comun de una lista
+        #        Por ende se debe especificar un criterio de ordenamiento
         if sort_criteria is None:
-            sort_criteria = self.cmpfunction
+            return "No se ha especificado un criterio de ordenamiento"
 
         sorted_list = merg.sort(self.list, sort_criteria)
 
+        self.sorted = True
+
         return sorted_list
+
+    def isSorted(self, search_function: function):
+
+        if self.sorted:
+
+            return search_function(*args)
+
+        else:
+
+            return "La lista no esta ordenada"
+
+
+    #OPTIMIZE Algoritmos de Busqueda
+
+    @isSorted
+    def linealSearch(self,element,parameter):
+        pos = None
+        while pos == None:
+            for list_element in self.list:
+                if lt.getElement(self.list,album_pos)[parameter] == element:
+                    pos = album_pos
+                    break
+            element += 1
+        return pos
+
+    @isSorted
+    def binarySearch(self, element, parameter):
+        """
+        Busqueda Binaria de un elemento en una lista ordenada ascendentemente
+        Resultado: Indice en la lista donde se encuentra el elemento. -1 si no se encuentra.
+        """
+        i = 0
+        f = lt.size(self.list)
+        pos = -1
+        found = False
+        while i <= f and not found:
+            # calcular la posicion de la mitad entre i y f
+            m = (i + f) // 2
+            if lt.getElement(self.list, m)[parameter] == element:
+                pos = m
+                found = True
+            elif lt.getElement(self.list, m)[parameter] > element:
+                f = m - 1
+            else:
+                i = m + 1
+        return pos
+
+    @isSorted
+    def binarySearchMin(self, element, parameter):
+        m = 0
+        i = 0
+        f = lt.size(self.list)
+        pos = -1
+        found = False
+        while i <= f and not found:
+            m = (i + f) // 2
+            if lt.getElement(self.list, m)[parameter] == element:
+                pos = m
+                found = True
+            elif lt.getElement(self.list, m)[parameter] > element:
+                f = m - 1
+            else:
+                i = m + 1
+        if found == True:
+            while lt.getElement(self.list, pos - 1)[parameter] == element:
+                pos -= 1
+        elif lt.getElement(self.list, m)[parameter] > element:
+            pos = m
+            while lt.getElement(self.list, pos - 1)[parameter] > element:
+                pos -= 1
+        return pos
+
+    @isSorted
+    def binarySearchMax(self, element, parameter):
+        m = 0
+        i = 0
+        f = lt.size(self.list)
+        pos = -1
+        found = False
+        while i <= f and not found:
+            m = (i + f) // 2
+            if lt.getElement(self.list, m)[parameter] == element:
+                pos = m
+                found = True
+            elif lt.getElement(self.list, m)[parameter] > element:
+                f = m - 1
+            else:
+                i = m + 1
+        if found == True:
+            while lt.getElement(self.list, pos + 1)[parameter] == element:
+                pos += 1
+        elif lt.getElement(self.list, m)[parameter] < element:
+            pos = m
+            while lt.getElement(self.list, pos + 1)[parameter] > element:
+                pos += 1
+        return pos
 
 class Stack:
     

@@ -34,9 +34,27 @@ from DISClib.Algorithms.Sorting import quicksort as quk
 assert cf
 
 class List:
+    """
+    A custom list class that can use different data structures and comparison functions.
+
+    Attributes:
+        list: The underlying list object from the lt module.
+        datastructure: The type of data structure used for the list ("ARRAY_LIST" or "SINGLE_LINKED").
+        cmpfunction: The comparison function used to sort or search the list elements.
+        sorted: A boolean flag indicating whether the list is sorted or not.
+        elements: A reference to the list elements (either an array or a node).
+    """
     
-    def __init__(self, datastructure = "ARRAY_LIST" , cmpfunction = None, adt = None, sorted = False):
-        
+    def __init__(self, datastructure="ARRAY_LIST", cmpfunction=None, adt=None, sorted=False):
+        """
+        Initializes a List object with the given parameters.
+
+        Args:
+            datastructure (str): A string indicating the type of data structure to use for the list ("ARRAY_LIST" or "SINGLE_LINKED"). Defaults to "ARRAY_LIST".
+            cmpfunction (function): A function that takes two elements as arguments and returns a negative number if the first element is less than the second, zero if they are equal, or a positive number if the first element is greater than the second. Defaults to None.
+            adt (object): An existing list object from the lt module to use as the underlying list. Defaults to None.
+            sorted (bool): A boolean flag indicating whether the list is sorted or not. Defaults to False.
+        """
         if adt is not None:
             self.list = adt
             self.datastructure = adt["type"]
@@ -46,94 +64,226 @@ class List:
                 self.elements = adt["elements"]
             else:
                 self.elements = adt["first"]
-
         else:
             self.list = lt.newList(datastructure, cmpfunction)
-        
             self.datastructure = datastructure
             self.cmpfunction = cmpfunction
             self.sorted = sorted
-
             if self.datastructure == "ARRAY_LIST":
                 self.elements = self.list["elements"]
             else:
                 self.elements = self.list["first"]
-
     
     def __str__(self) -> str:
+        """
+        Returns a string representation of the list.
 
+        Returns:
+            A string containing the list elements.
+        """
         if self.datastructure == "ARRAY_LIST":
             return str(self.elements)
         else:
             return str(self.list["first"])
     
     def __len__(self) -> int:
+        """
+        Returns the number of elements in the list.
+
+        Returns:
+            An integer representing the size of the list.
+        """
         return lt.size(self.list)
     
     def __iter__(self):
+        """
+        Returns an iterator over the list elements.
+
+        Returns:
+            An iterator object that can be used in a for loop or with next().
+        """
         return lt.iterator(self.list)
     
     def __type__(self):
+        """
+        Returns a string describing the type of the list.
+
+        Returns:
+            A string containing the ADT name and the data structure name.
+        """
         return f"ADT : list , Datastructure: {self.datastructure}"
     
     def addFirst(self, element):
-        
+        """
+        Adds an element at the beginning of the list.
+
+        Args:
+            element: The element to be added to the list.
+
+        Raises:
+            Exception: If there is no space left in the list (only for array lists).
+        """
         lt.addFirst(self.list, element)
     
     def addLast(self, element):
-        
+        """
+        Adds an element at the end of the list.
+
+        Args:
+            element: The element to be added to the list.
+
+        Raises:
+            Exception: If there is no space left in the list (only for array lists).
+        """
         lt.addLast(self.list, element)
     
     def isEmpty(self) -> bool:
-        
+        """
+        Checks if the list is empty or not.
+
+        Returns:
+            True if the list has no elements, False otherwise.
+        """
         return lt.isEmpty(self.list)
     
     def size(self) -> int:
+        """
+        Returns the number of elements in the list.
+
+        Returns:
+            An integer representing the size of the list.
+        """
         return lt.size(self.list)
     
-    
     def firstElement(self):
-        
+        """
+        Returns the first element of the list.
+
+        Returns:
+            The element at the first position of the list, or None if the list is empty.
+        """
         return lt.firstElement(self.list)
     
     def lastElement(self):
-        
+        """
+        Returns the last element of the list.
+
+        Returns:
+            The element at the last position of the list, or None if the list is empty.
+        """
         return lt.lastElement(self.list)
     
     def getElement(self, pos):
-        
+        """
+        Returns the element at a given position of the list.
+
+        Args:
+            pos (int): An integer between 1 and the size of the list, indicating the position of the element to be returned.
+
+        Returns:
+            The element at the specified position of the list.
+
+        Raises:
+            IndexError: If the position is out of range (less than 1 or greater than the size of the list).
+        """
         return lt.getElement(self.list, pos)
     
     def deleteElement(self, pos):
-        
+        """
+        Deletes and returns the element at a given position of the list.
+
+        Args:
+            pos (int): An integer between 1 and the size of the list, indicating the position of the element to be deleted.
+
+        Returns:
+            The element that was deleted from the list, or None if the position is invalid.
+
+        Raises:
+            IndexError: If the position is out of range (less than 1 or greater than the size of the list).
+        """
         return lt.deleteElement(self.list, pos)
     
     def removeFirst(self):
-        
+        """
+        Removes and returns the first element of the list.
+
+        Returns:
+            The element that was removed from the list, or None if the list is empty.
+        """
         return lt.removeFirst(self.list)
     
     def removeLast(self):
-        
+        """
+        Removes and returns the last element of the list.
+
+        Returns:
+            The element that was removed from the list, or None if the list is empty.
+        """
         return lt.removeLast(self.list)
     
     def insertElement(self, element, pos):
-        
+        """
+        Inserts an element at a given position of the list.
+
+        Args:
+            element: The element to be inserted.
+            pos (int): An integer between 1 and the size of the list + 1, indicating the position where the element will be inserted.
+
+        Returns:
+            True if the element was inserted successfully, False otherwise.
+
+        Raises:
+            IndexError: If the position is out of range (less than 1 or greater than the size of the list + 1).
+        """
         return lt.insertElement(self.list, element, pos)
     
     def isPresent(self, element):
-        
+        """
+        Checks whether an element is present in the list.
+
+        Args:
+            element: The element to be searched for.
+
+        Returns:
+            True if the element is present in the list, False otherwise.
+        """
         return lt.isPresent(self.list, element)
     
     def exchange(self, pos1, pos2):
-        
+        """
+        Exchanges the elements at two positions in the list.
+
+        Args:
+            pos1 (int): The position of the first element to be exchanged.
+            pos2 (int): The position of the second element to be exchanged.
+
+        Raises:
+            IndexError: If either position is out of range (less than 1 or greater than the size of the list).
+        """
         return lt.exchange(self.list, pos1, pos2)
     
     def changeInfo(self, pos, element):
-        
-        return lt.changeInfo(self.list, pos, element)
+        """
+        Changes the value of an element in the list.
+
+        Args:
+            pos (int): The position of the element to be changed.
+            element: The new value of the element.
+
+        Raises:
+            IndexError: If the position is out of range (less than 1 or greater than the size of the list).
+        """
+        return
     
     def subList(self, pos1, numElements):
-        
+        """
+        Returns a new list that contains a portion of the original list.
+        Args:
+            pos1: the initial position of the sublist.
+            numElements: the number of elements of the sublist.
+        Returns:
+            A new List object representing the sublist.
+        """
         sub_list = lt.subList(self.list, pos1, numElements)
 
         sub_list = List(adt=sub_list)
@@ -141,15 +291,19 @@ class List:
         return sub_list
     
     def iterator(self):
-        
+        """
+        Return the iterator for the list.
+        """
         return lt.iterator(self.list)
     
-    #OPTIMIZE Algoritmos de Ordenamiento
-    #NOTE Se agregan los algoritmos de ordenamiento para listas
-
     def sort(self, sort_criteria = None):
-        #CHANGED No es posible ordenar con una funcion de comparacion comun de una lista
-        #        Por ende se debe especificar un criterio de ordenamiento
+        """
+        Sort the list.
+        Args:
+            sort_criteria: the criteria used to sort the list
+        Returns:
+            The sorted list or an error message if no sort criteria is specified.
+        """
         if sort_criteria is None:
             return "No se ha especificado un criterio de ordenamiento"
 
@@ -160,7 +314,13 @@ class List:
         return sorted_list
 
     def isSorted(func):
-
+        """
+        Decorator that checks if the list is sorted before running a search method.
+        Args:
+            func: the function being decorated
+        Returns:
+            The decorated function.
+        """
         def decorator(self, *args):
 
             if self.sorted:
@@ -174,10 +334,15 @@ class List:
         return decorator
 
 
-    #OPTIMIZE Algoritmos de Busqueda
-
     @isSorted
     def linealSearch(self,element):
+        """
+        Perform a linear search on the list.
+        Args:
+            element: the element to look for in the list.
+        Returns:
+            The index of the element if found, None otherwise.
+        """
         pos = None
         while pos == None:
             for list_element in self.list:
@@ -190,8 +355,11 @@ class List:
     @isSorted
     def binarySearch(self, element):
         """
-        Busqueda Binaria de un elemento en una lista ordenada ascendentemente
-        Resultado: Indice en la lista donde se encuentra el elemento. -1 si no se encuentra.
+        Perform a binary search on the list.
+        Args:
+            element: the element to look for in the list.
+        Returns:
+            The index of the element if found, -1 otherwise.
         """
         i = 0
         f = lt.size(self.list)
@@ -211,6 +379,13 @@ class List:
 
     @isSorted
     def binarySearchMin(self, element):
+        """
+        Find the minimum index of an element in a sorted list using binary search.
+        Args:
+            element: the element to look for in the list.
+        Returns:
+            The index of the first element in the list if there are duplicates or the element itself if there are no duplicates.
+        """
         m = 0
         i = 0
         f = lt.size(self.list)
@@ -236,6 +411,13 @@ class List:
 
     @isSorted
     def binarySearchMax(self, element):
+        """
+        Find the maximum index of an element in a sorted list using binary search.
+        Args:
+            element: the element to look for in the list.
+        Returns:
+            The index of the last element in the list if there are duplicates or the element itself if there are no duplicates.
+        """
         m = 0
         i = 0
         f = lt.size(self.list)

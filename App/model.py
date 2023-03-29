@@ -292,12 +292,57 @@ class DataStructs:
         self.all_data = None
         self.map_by_year = None
 
-
-
-
-
-
 class EconomicActivity:
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, data: dict):
+
+        """
+        This method initializes an object with attributes from a data dictionary.
+
+        Parameters:
+        data (dict): A dictionary containing information about an economic activity.
+
+        Attributes:
+        year (int): The year of the activity.
+        code_activity (str): The code of the economic activity.
+        name_activity (str): The name of the economic activity.
+        code_subsector (str): The code of the economic subsector.
+        name_subsector (str): The name of the economic subsector.
+        code_sector (str): The code of the economic sector.
+        name_sector (str): The name of the economic sector.
+        total_net_incomes (float): The total net incomes of the activity.
+        total_favorable_balance (float): The total favorable balance of the activity.
+        total_payable_balance (float): The total payable balance of the activity.
+        total_retencions (float): The total retentions of the activity.
+        total_cost_and_expenses (float): The total cost and expenses of the activity.
+        total_costs (float): The total costs of the activity.
+        costs (dict): A dictionary containing the breakdown of costs by category.
+        costs_and_payroll_expenses (float): The total costs and payroll expenses of the activity.
+        tax_discounts (float): The total tax discounts of the activity.
+
+        """
+
+        self.year = data["Año"]
+        self.code_activity = data["Código actividad económica"]
+        self.name_activity = data["Nombre actividad económica"]
+        self.code_subsector = data["Código subsector económico"]
+        self.name_subsector = data["Nombre subsector económico"]
+        self.code_sector = data["Código sector económico"]
+        self.name_sector = data["Nombre sector económico"]
+        self.total_net_incomes = data["Total ingresos netos"]
+        self.total_favorable_balance = data["Total saldo a favor"]
+        self.total_payable_balance = data["Total saldo a pagar"]
+        self.total_retencions = data["Total retenciones"]
+        self.total_cost_and_expenses = data["Total costos y gastos"]
+        self.total_costs = data["Total costos"]
+        self.costs = data["Costos"]
+        self.costs_and_payroll_expenses = data["Costos y gastos nómina"]
+        self.tax_discounts = data["Descuentos tributarios"]
+
+
+
+
+
+
+
+

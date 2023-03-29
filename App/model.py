@@ -136,24 +136,36 @@ def get_data(data_structs, id):
     """
     Retorna un dato a partir de su ID
     """
-    #TODO: Crear la función para obtener un dato de una lista
-    pass
+    mapa = data_structs["map_by_year"]
+    resultado = mp.get(mapa, id)
+    return me.getValue(resultado)["data"]
 
 
 def data_size(data_structs):
     """
     Retorna el tamaño de la lista de datos
     """
-    #TODO: Crear la función para obtener el tamaño de una lista
-    pass
-
+    mapa = data_structs["all_data"]
+    return mp.size(mapa)
 
 def req_1(data_structs):
     """
     Función que soluciona el requerimiento 1
     """
-    # TODO: Realizar el requerimiento 1
-    pass
+    año = ""
+    codigo = ""
+    lista = get_data(data_structs, año)
+    max = None
+    resultado = None
+    for reg in lt.iterator(lista):
+        if reg["Código sector económico"] == codigo:
+            if max == None:
+                max = reg["Total saldo a pagar"]
+                resultado = reg
+            if reg["Total saldo a pagar"] > max:
+                max = reg["Total saldo a pagar"]
+                resultado = reg
+    return resultado    
 
 
 def req_2(data_structs):
@@ -255,9 +267,10 @@ def sort_criteria(data_1, data_2):
     Returns:
         _type_: _description_
     """
-    #TODO: Crear función comparadora para ordenar
-    pass
-
+    if data_1 < data_2:
+        return True
+    else:
+        return False
 
 
 def sc_by_element(data_1, data_2):

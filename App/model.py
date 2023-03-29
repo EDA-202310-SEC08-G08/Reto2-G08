@@ -216,13 +216,16 @@ def req_8(data_structs):
 
 #NOTE Funciones utilizadas para comparar elementos dentro de una lista
 
-def cmp_by_id(data_1, data_2):
+def compare_by_id(data_1, data_2):
     """
     Función encargada de comparar dos datos
     """
-    if data_1["id"] > data_2["id"]:
+    id_1 = data_1["id"]
+    id_2 = data_2["id"]
+
+    if id_1 > id_2:
         return 1
-    elif data_1["id"] < data_2["id"]:
+    elif id_1 < id_2:
         return -1
     else:
         return 0
@@ -322,15 +325,15 @@ class EconomicActivity:
 
         """
 
-        self.year = data["Año"]
-        self.code_activity = data["Código actividad económica"]
+        self.year = int(data["Año"])
+        self.code_activity = int(data["Código actividad económica"])
         self.name_activity = data["Nombre actividad económica"]
-        self.code_subsector = data["Código subsector económico"]
+        self.code_subsector = int(data["Código subsector económico"])
         self.name_subsector = data["Nombre subsector económico"]
-        self.code_sector = data["Código sector económico"]
+        self.code_sector = int(data["Código sector económico"])
         self.name_sector = data["Nombre sector económico"]
-        self.total_net_incomes = data["Total ingresos netos"]
-        self.total_favorable_balance = data["Total saldo a favor"]
+        self.total_net_incomes = int(data["Total ingresos netos"])
+        self.total_favorable_balance = int(data["Total saldo a favor"])
         self.total_payable_balance = data["Total saldo a pagar"]
         self.total_retencions = data["Total retenciones"]
         self.total_cost_and_expenses = data["Total costos y gastos"]
@@ -338,6 +341,8 @@ class EconomicActivity:
         self.costs = data["Costos"]
         self.costs_and_payroll_expenses = data["Costos y gastos nómina"]
         self.tax_discounts = data["Descuentos tributarios"]
+
+
 
 
 

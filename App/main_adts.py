@@ -361,20 +361,33 @@ class List:
         Returns:
             The index of the element if found, -1 otherwise.
         """
+        # inicializar i en el inicio de la lista
         i = 0
+        # inicializar f en el final de la lista
         f = lt.size(self.list)
+        # inicializar pos en -1 para indicar que no se ha encontrado el elemento
         pos = -1
+        # inicializar found en False
         found = False
+        # mientras i sea menor o igual que f y found sea False
         while i <= f and not found:
             # calcular la posicion de la mitad entre i y f
             m = (i + f) // 2
+            # si el elemento en la posicion m es igual al elemento buscado
             if lt.getElement(self.list, m) == element:
+                # asignar m a pos
                 pos = m
+                # asignar True a found
                 found = True
+            # si el elemento en la posicion m es mayor que el elemento buscado
             elif lt.getElement(self.list, m) > element:
+                # asignar m - 1 a f
                 f = m - 1
+            # si el elemento en la posicion m es menor que el elemento buscado
             else:
+                # asignar m + 1 a i
                 i = m + 1
+        # retornar pos
         return pos
 
     @isSorted
@@ -386,23 +399,31 @@ class List:
         Returns:
             The index of the first element in the list if there are duplicates or the element itself if there are no duplicates.
         """
+        # Initialize variables
         m = 0
         i = 0
         f = lt.size(self.list)
         pos = -1
         found = False
+        # Loop until the element is found or the list is empty
         while i <= f and not found:
+            # Calculate the middle index
             m = (i + f) // 2
+            # If the element is found, set the position and return
             if lt.getElement(self.list, m) == element:
                 pos = m
                 found = True
+            # If the element is greater than the middle element, change the lower bound
             elif lt.getElement(self.list, m) > element:
                 f = m - 1
+            # If the element is less than the middle element, change the upper bound
             else:
                 i = m + 1
+        # If the element is found, find the minimum position
         if found == True:
             while lt.getElement(self.list, pos - 1) == element:
                 pos -= 1
+        # If the element is not found, find the position where the element should be inserted
         elif lt.getElement(self.list, m) > element:
             pos = m
             while lt.getElement(self.list, pos - 1) > element:
@@ -410,36 +431,41 @@ class List:
         return pos
 
     @isSorted
-    def binarySearchMax(self, element):
-        """
-        Find the maximum index of an element in a sorted list using binary search.
-        Args:
-            element: the element to look for in the list.
-        Returns:
-            The index of the last element in the list if there are duplicates or the element itself if there are no duplicates.
-        """
-        m = 0
-        i = 0
-        f = lt.size(self.list)
-        pos = -1
-        found = False
-        while i <= f and not found:
-            m = (i + f) // 2
-            if lt.getElement(self.list, m) == element:
-                pos = m
-                found = True
-            elif lt.getElement(self.list, m) > element:
-                f = m - 1
-            else:
-                i = m + 1
-        if found == True:
-            while lt.getElement(self.list, pos + 1) == element:
-                pos += 1
-        elif lt.getElement(self.list, m) < element:
+def binarySearchMax(self, element):
+    """
+    Find the maximum index of an element in a sorted list using binary search.
+    Args:
+        element: the element to look for in the list.
+    Returns:
+        The index of the last element in the list if there are duplicates or the element itself if there are no duplicates.
+    """
+    m = 0
+    i = 0
+    f = lt.size(self.list)
+    pos = -1
+    found = False
+    while i <= f and not found:
+        m = (i + f) // 2
+        # Compare the middle element with the given element
+        if lt.getElement(self.list, m) == element:
             pos = m
-            while lt.getElement(self.list, pos + 1) > element:
-                pos += 1
-        return pos
+            found = True
+        # If the middle element is greater than the given element, then the element can only be present in the left subarray
+        elif lt.getElement(self.list, m) > element:
+            f = m - 1
+        # If the middle element is smaller than the given element, then the element can only be present in the right subarray
+        else:
+            i = m + 1
+    # If the element is found in the list, then we search for the last element in the list
+    if found == True:
+        while lt.getElement(self.list, pos + 1) == element:
+            pos += 1
+    # If the element is not in the list, then the position of the element is the position of the last smaller element
+    elif lt.getElement(self.list, m) < element:
+        pos = m
+        while lt.getElement(self.list, pos + 1) > element:
+            pos += 1
+    return pos
 
 class Stack:
     

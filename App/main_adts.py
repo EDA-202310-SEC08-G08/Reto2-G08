@@ -431,41 +431,41 @@ class List:
         return pos
 
     @isSorted
-def binarySearchMax(self, element):
-    """
-    Find the maximum index of an element in a sorted list using binary search.
-    Args:
-        element: the element to look for in the list.
-    Returns:
-        The index of the last element in the list if there are duplicates or the element itself if there are no duplicates.
-    """
-    m = 0
-    i = 0
-    f = lt.size(self.list)
-    pos = -1
-    found = False
-    while i <= f and not found:
-        m = (i + f) // 2
-        # Compare the middle element with the given element
-        if lt.getElement(self.list, m) == element:
+    def binarySearchMax(self, element):
+        """
+        Find the maximum index of an element in a sorted list using binary search.
+        Args:
+            element: the element to look for in the list.
+        Returns:
+            The index of the last element in the list if there are duplicates or the element itself if there are no duplicates.
+        """
+        m = 0
+        i = 0
+        f = lt.size(self.list)
+        pos = -1
+        found = False
+        while i <= f and not found:
+            m = (i + f) // 2
+            # Compare the middle element with the given element
+            if lt.getElement(self.list, m) == element:
+                pos = m
+                found = True
+            # If the middle element is greater than the given element, then the element can only be present in the left subarray
+            elif lt.getElement(self.list, m) > element:
+                f = m - 1
+            # If the middle element is smaller than the given element, then the element can only be present in the right subarray
+            else:
+                i = m + 1
+        # If the element is found in the list, then we search for the last element in the list
+        if found == True:
+            while lt.getElement(self.list, pos + 1) == element:
+                pos += 1
+        # If the element is not in the list, then the position of the element is the position of the last smaller element
+        elif lt.getElement(self.list, m) < element:
             pos = m
-            found = True
-        # If the middle element is greater than the given element, then the element can only be present in the left subarray
-        elif lt.getElement(self.list, m) > element:
-            f = m - 1
-        # If the middle element is smaller than the given element, then the element can only be present in the right subarray
-        else:
-            i = m + 1
-    # If the element is found in the list, then we search for the last element in the list
-    if found == True:
-        while lt.getElement(self.list, pos + 1) == element:
-            pos += 1
-    # If the element is not in the list, then the position of the element is the position of the last smaller element
-    elif lt.getElement(self.list, m) < element:
-        pos = m
-        while lt.getElement(self.list, pos + 1) > element:
-            pos += 1
-    return pos
+            while lt.getElement(self.list, pos + 1) > element:
+                pos += 1
+        return pos
 
 class Stack:
     

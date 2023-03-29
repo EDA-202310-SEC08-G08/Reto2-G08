@@ -292,37 +292,103 @@ class DataStructs:
 
     def __init__(self):
 
-        self.all_data = None
-        self.map_by_year = None
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        self.map_by_year = adt.HashMap(numelements=10, maptype="PROBING", loadfactor=0.5)
 
-class EconomicActivity:
+
+class Year(DataStructs):
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        self.map_by_sector = adt.HashMap(numelements=15, maptype="PROBING", loadfactor=0.5)
+
+
+class Sector(Year):
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        self.map_by_subsector = adt.HashMap(numelements=21, maptype="PROBING", loadfactor=0.5)
+
+        #NOTE: Atributos para el requerimiento 1
+        self.max_total_payable_balance = None #NOTE: EconomicActivity
+        self.min_total_payable_balance = None #NOTE: EconomicActivity
+        #NOTE: Atributos para el requerimiento 2
+        self.max_total_favorable_balance = None #NOTE: EconomicActivity
+        self.min_total_favorable_balance = None #NOTE: EconomicActivity
+
+
+
+class Subsector(Sector):
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        #NOTE: Atributos para el requerimiento 3
+        self.min_total_retencions = None #NOTE: EconomicActivity
+        self.max_total_retencions = None #NOTE: EconomicActivity
+        #NOTE: Atributos para el requerimiento 4
+        self.min_total_costs_and_payroll_expenses = None #NOTE: EconomicActivity
+        self.max_total_costs_and_payroll_expenses = None #NOTE: EconomicActivity
+        #NOTE: Atributos para el requerimiento 5
+        self.min_tax_discounts = None #NOTE: EconomicActivity
+        self.max_tax_discounts = None #NOTE: EconomicActivity
+
+        #HACK Atributos para el requerimiento 6
+        self.total_net_incomes = 0
+
+    def calculate_max_and_min(self, sort_criteria: function, attribute: str):
+        """
+        Función encargada de calcular el máximo y el mínimo de total retenciones
+        """
+
+        subsector_all_data = self.all_data
+
+        subsector_all_data.sort(sort_criteria)
+
+        max = subsector_all_data.get(1)
+
+        min = subsector_all_data.get(subsector_all_data.size())
+
+        if attribute == "total_retencions":
+            self.min_total_retencions = min
+            self.max_total_retencions = max
+        elif attribute == "total_costs_and_payroll_expenses":
+            self.min_total_costs_and_payroll_expenses = min
+            self.max_total_costs_and_payroll_expenses = max
+        elif attribute == "tax_discounts":
+            self.min_tax_discounts = min
+            self.max_tax_discounts = max
+
+        return max, min
+
+
+
+
+class EconomicActivity():
 
     def __init__(self, data: dict):
-
         """
-        This method initializes an object with attributes from a data dictionary.
-
-        Parameters:
-        data (dict): A dictionary containing information about an economic activity.
+        This class represents an economic activity.
 
         Attributes:
-        year (int): The year of the activity.
-        code_activity (str): The code of the economic activity.
+        year (int): The year of the data.
+        code_activity (int): The code of the economic activity.
         name_activity (str): The name of the economic activity.
-        code_subsector (str): The code of the economic subsector.
-        name_subsector (str): The name of the economic subsector.
-        code_sector (str): The code of the economic sector.
-        name_sector (str): The name of the economic sector.
-        total_net_incomes (float): The total net incomes of the activity.
-        total_favorable_balance (float): The total favorable balance of the activity.
-        total_payable_balance (float): The total payable balance of the activity.
-        total_retencions (float): The total retentions of the activity.
-        total_cost_and_expenses (float): The total cost and expenses of the activity.
-        total_costs (float): The total costs of the activity.
-        costs (dict): A dictionary containing the breakdown of costs by category.
-        costs_and_payroll_expenses (float): The total costs and payroll expenses of the activity.
-        tax_discounts (float): The total tax discounts of the activity.
-
+        code_subsector (int): The code of the subsector.
+        name_subsector (str): The name of the subsector.
+        code_sector (int): The code of the sector.
+        name_sector (str): The name of the sector.
+        total_net_incomes (int): The total net incomes.
+        total_favorable_balance (int): The total favorable balance.
+        total_payable_balance (int): The total payable balance.
+        total_retencions (int): The total retentions.
+        total_cost_and_expenses (int): The total cost and expenses.
+        total_costs (int): The total costs.
+        costs (int): The costs.
+        costs_and_payroll_expenses (int): The costs and payroll expenses.
+        tax_discounts (int): The tax discounts.
         """
 
         self.year = int(data["Año"])
@@ -334,14 +400,13 @@ class EconomicActivity:
         self.name_sector = data["Nombre sector económico"]
         self.total_net_incomes = int(data["Total ingresos netos"])
         self.total_favorable_balance = int(data["Total saldo a favor"])
-        self.total_payable_balance = data["Total saldo a pagar"]
-        self.total_retencions = data["Total retenciones"]
-        self.total_cost_and_expenses = data["Total costos y gastos"]
-        self.total_costs = data["Total costos"]
-        self.costs = data["Costos"]
-        self.costs_and_payroll_expenses = data["Costos y gastos nómina"]
-        self.tax_discounts = data["Descuentos tributarios"]
-
+        self.total_payable_balance = int(data["Total saldo a pagar"])
+        self.total_retencions = int(data["Total retenciones"])
+        self.total_cost_and_expenses = int(data["Total costos y gastos"])
+        self.total_costs = int(data["Total costos"])
+        self.costs = int(data["Costos"])
+        self.costs_and_payroll_expenses = int(data["Costos y gastos nómina"])
+        self.tax_discounts = int(data["Descuentos tributarios"])
 
 
 

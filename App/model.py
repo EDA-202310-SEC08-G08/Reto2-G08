@@ -181,13 +181,101 @@ def req_4(data_structs):
     pass
 
 
-def req_5(data_structs):
+def req_5(data_structs, año):
     """
     Función que soluciona el requerimiento 5
     """
     # TODO: Realizar el requerimiento 5
-    pass
+    actividad_año = mp.get(data_structs['model']['map_by_year'],año)['value']['data']
+    
+    
+    subsector_descuentos_trib, descuentos_trib_totales = descuentos_trib(actividad_año)
+    
+    list_subsector = listify(actividad_año, subsector_descuentos_trib)
+    
+    list_subsector = sort_req_5(list_subsector)
+    
+    lt.firstElement(list_subsector)['Total de descuentos tributarios del subsector ecomonico'] = descuentos_trib_totales
+    
+    sumar_req_5(list_subsector)
+    
+    return list_subsector
+    
+    
+def sort_req_5(list_subsector):
+    return quk.sort(list_subsector,sort_crit=sort_criteria_atctividad_ec)
+    
+def sumar_req_5(list_subsector):
+    a_sumar = ['Total ingresos netos',
+               'Total costos y gastos',
+               'Total saldo a pagar',
+               'Total saldo a favor']
+    
+    for x in a_sumar:
+        total = 0
+        for element in lt.iterator(list_subsector):
+            total += int(element[x])
+        lt.firstElement(list_subsector)[x + " del subsector economico"] = total
+    
 
+def listify(actividad_año, subsector_descuentos_trib):
+    
+    list = lt.newList(datastructure='ARRAY_LIST',cmpfunction=cmp_by_id)
+    
+    for element in lt.iterator(actividad_año):
+        if element['Código subsector económico'] == subsector_descuentos_trib:
+            lt.addLast(list, element)
+    
+    return list
+    
+    
+    
+        
+def descuentos_trib(actividad_año):
+    #Retorna el total de descuentos tributarios mas grande y su subsector
+    
+    
+    sub_sectores = subsectores(actividad_año) 
+    
+    subsector_descuentos_trib = -1
+    tot_max = 0
+    for subsector in sub_sectores:
+        tot_aux = 0
+        for element in lt.iterator(actividad_año):
+            if element['Código subsector económico'] == subsector:
+                tot_aux += int(element['Descuentos tributarios'])
+        if tot_aux > tot_max:
+            tot_max = tot_aux
+            subsector_descuentos_trib = subsector
+    return subsector_descuentos_trib, tot_max
+        
+    
+def subsectores(actividad_año):
+    subsectores = []
+    for element in lt.iterator(actividad_año):
+        if element['Código subsector económico'] not in subsectores:
+            subsectores.append(element['Código subsector económico'])
+    return subsectores
+
+def sort_criteria_atctividad_ec(data1, data2):
+    """_summary_
+
+    Args:
+        data1 (_type_): _description_
+        data2 (_type_): _description_
+    """
+
+
+    if int(data1["Descuentos tributarios"]) == int(data2['Descuentos tributarios']):
+        if int(data1["Código actividad económica"]) > int(data2['Código actividad económica']):
+            return True
+        else:
+            return False
+    elif int(data1["Descuentos tributarios"]) < int(data2['Descuentos tributarios']):
+        return True
+    else:
+        return False
+        
 
 def req_6(data_structs):
     """

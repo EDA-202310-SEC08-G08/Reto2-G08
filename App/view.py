@@ -159,6 +159,26 @@ def printHeader(rqn, msg_rq, msg_answer):
 
     return control
 
+def table_primer_elemento(list):
+    columns = ['Código sector económico',
+               'Nombre sector económico',
+               'Código subsector económico',
+               'Nombre subsector económico',
+               'Total de descuentos tributarios del subsector ecomonico',
+               'Total ingresos netos del subsector economico',
+               'Total costos y gastos del subsector economico',
+               'Total saldo a pagar del subsector economico',
+               'Total saldo a favor del subsector economico'
+               ]
+    
+    table = []
+
+    element = new_element(lt.firstElement(list), columns)
+    table.append(element)
+
+    return tabulate(table, tablefmt="grid", maxcolwidths=15,maxheadercolwidths=15, headers=columns)
+
+
 def print_charge_data(control):
     columns = ['Año',
                'Código actividad económica',
@@ -251,7 +271,86 @@ def print_req_5(control):
         Función que imprime la solución del Requerimiento 5 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 5
-    pass
+    printchooseAño()
+    año = añoChoose()
+    
+    
+    list = controller.req_5(control, año)
+    
+    tabla_subsector = table_primer_elemento(list)
+    
+    print(f"Economic subsectors with the highest Descuentos Tributarios en el año {año}")
+    print(tabla_subsector)
+    
+    columns = ['Código actividad económica',
+               'Nombre actividad económica',
+               'Descuentos tributarios',
+               'Total ingresos netos',
+               'Total costos y gastos',
+               'Total saldo a pagar',
+               'Total saldo a favor',
+               ]
+    
+    if lt.size(list) < 6:
+        print(f'\nThere are only {lt.size(list)} actividades economicas in {año}\n')
+        print(simple_table(list, column_names=columns))
+    else:
+        print(f"\nThere are {lt.size(list)} actividades economicas in {año}\n")
+        print(first_and_last(list, column_names=columns, n=3))
+    
+    
+        
+
+def printchooseAño():
+    print('\nIngrese el año (2012-2021) para el que quiere ver el subsector económico con los mayores descuentos tributarios: ')
+    
+def añoChoose():
+    """
+
+    Da opciones al usuario para que escoja el año de su preferencia
+
+    Returns:
+
+        El año de interes
+    """
+    añoChoose = False
+    while añoChoose == False:
+
+        año = input('Opción seleccionada: ')
+        if int(año) == 2012:
+            print('\nSelecciono el año ' + año)
+            añoChoose = True
+        elif int(año) == 2013:
+            print('\nSeleciono el archivo ' + año)
+            añoChoose = True
+        elif int(año) == 2014:
+            print('\nSeleciono el archivo ' + año)
+            añoChoose = True
+        elif int(año) == 2015:
+            print('\nSeleciono el archivo ' + año)
+            añoChoose = True
+        elif int(año) == 2016:
+            print('\nSeleciono el archivo ' + año)
+            añoChoose = True
+        elif int(año) == 2017:
+            print('\nSeleciono el archivo ' + año)
+            añoChoose = True
+        elif int(año) == 2018:
+            print('\nSeleciono el archivo ' + año)
+            añoChoose = True
+        elif int(año) == 2019:
+            print('\nSeleciono el archivo ' + año)
+            añoChoose = True
+        elif int(año) == 2020:
+            print('\nSeleciono el archivo ' + año)
+            añoChoose = True
+        elif int(año) == 2021:
+            print('\nSeleciono el archivo ' + año)
+            añoChoose = True
+        elif int(año) == 0:
+            añoChoose = True
+
+    return año
 
 
 def print_req_6(control):

@@ -594,8 +594,17 @@ class HashMap():
         return mp.remove(self.map, key)
 
     def contains(self, key):
+        """
+        Returns True if the key is in the map, False otherwise.
 
+        Parameters:
+        key (str): The key to search for in the map.
+
+        Returns:
+        bool: True if the key is in the map, False otherwise.
+        """
         return mp.contains(self.map, key)
+
 
     def isEmpty(self) -> bool:
 

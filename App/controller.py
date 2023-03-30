@@ -19,7 +19,15 @@
  * You should have received a copy of the GNU General Public License
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
-
+from time import sleep
+from types import FunctionType
+import model
+import tracemalloc
+from timeit import default_timer as timer
+from datetime import datetime
+import datetime as datetime
+import csv
+from time import sleep
 import config as cf
 import model
 import time
@@ -30,48 +38,110 @@ import tracemalloc
 El controlador se encarga de mediar entre la vista y el modelo.
 """
 
+# OPTIMIZE: Decorador Tiempos de Memoria
+# ADD : Decorador Tiempos de Memoria
 
-def new_controller(maptype, loadfactor):
+castBoolean=lambda x: True if x in ('True', 'true', 'TRUE', 'T', 't', '1', "Si", "SI", "Sí", "si", "Yes, YES") else False
+
+def deltaMemory(stop_memory:tracemalloc.Snapshot, start_memory:tracemalloc.Snapshot)->float:
+    """Devuelve la diferencia en memoria en KB entre dos Snapshots
+    ---------------------------------------------------------------------
+    Args:
+        start_memory: Snapshot inicial
+        stop_memory: Snapshot final
+    ---------------------------------------------------------------------
+    Return:
+        Diferencia de uso de memoria en KB"""
+    memory_diff = stop_memory.compare_to(start_memory, "filename")
+    delta_memory = 0.0
+    for stat in memory_diff:
+        delta_memory = delta_memory + stat.size_diff
+    delta_memory = delta_memory/1024.0
+    return delta_memory
+
+def printLoadDataAnswer(answer:...)->str:
+    """Valida y retorna los tiempos y/o memoria
+    ---------------------------------------------------------------------
+    Args:
+        answer: información con los tiempos y/o memoria
+    ---------------------------------------------------------------------
+    Return:
+        String con el tiempo y/o memoria de ejecución"""
+    if isinstance(answer, (list, tuple)) is True:
+        return("Tiempo [ms]: "+ f"{answer[0]:.3f}"+ "||"+
+            "Memoria [kB]: "+ f"{answer[1]:.3f}")
+    else:
+        return("Tiempo [ms]: "+ f"{answer:.3f}")
+
+
+def timer_y_mem(func:FunctionType)->tuple:
+    """Decorador para medir tiempos y memoria
+    ---------------------------------------------------------------------
+    Args:
+        func: función a medir tiempo
+    ---------------------------------------------------------------------
+    Return:
+        Tupla con el resultado de la función y los tiempos/memoria"""
+    def new_func(*args:...)->tuple:
+        """Función para medir tiempos y memoria
+        ---------------------------------------------------------------------
+        Args:
+            *args: argumentos para llamar a la función
+        ---------------------------------------------------------------------
+        Return:
+            Tupla con el resultado de la función y los tiempos/memoria"""
+        print("¿Desea observar el uso de memoria? (True/False)")
+        mem = input("Respuesta: ")
+        mem = castBoolean(mem)
+        start_time = timer()
+        if mem is True:
+            tracemalloc.start()
+            start_memory = tracemalloc.take_snapshot()
+
+        fun=func(*args)
+
+        stop_time = timer()
+        delta_time = (stop_time-start_time)*1000
+
+        if mem is True:
+            stop_memory = tracemalloc.take_snapshot()
+            tracemalloc.stop()
+            delta_memory = deltaMemory(stop_memory, start_memory)
+            exec_time= delta_time, delta_memory
+        else:
+            exec_time= delta_time
+
+        return fun, printLoadDataAnswer(exec_time)
+    return new_func
+
+
+def new_controller():
     """
     Crea una instancia del modelo
     """
     control = {
         "model": None
     }
-    control["model"] = model.new_data_structs(maptype, loadfactor)
+
+    control["model"] = model.new_data_structs()
+
     return control
 
 
 # Funciones para la carga de datos
-
-def load_data(control, filename, memflag):
+@timer_y_mem
+def load_data(control, filename):
     """
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
     rute = cf.data_dir + f"DIAN/Salida_agregados_renta_juridicos_AG{filename}"
     input_file = csv.DictReader(open(rute, encoding="utf-8"))
-    start_time = get_time()
-
-    if memflag is True:
-        tracemalloc.start()
-        start_memory = get_memory()
-
     for register in input_file:
         model.add_data(control["model"], register)
 
-    stop_time = get_time()
-    time_delta = delta_time(start_time, stop_time)
 
-    if memflag is True:
-        stop_memory = get_memory()
-        tracemalloc.stop()
-        # calcula la diferencia de memoria
-        memory_delta = delta_memory(stop_memory, start_memory)
-        # respuesta con los datos de tiempo y memoria
-        return time_delta, memory_delta
-
-    return time_delta
+    return control
 
 
 # Funciones de ordenamiento
@@ -158,40 +228,4 @@ def req_8(control):
     pass
 
 
-# Funciones para medir tiempos de ejecucion
 
-def get_time():
-    """
-    devuelve el instante tiempo de procesamiento en milisegundos
-    """
-    return float(time.perf_counter()*1000)
-
-
-def delta_time(start, end):
-    """
-    devuelve la diferencia entre tiempos de procesamiento muestreados
-    """
-    elapsed = float(end - start)
-    return elapsed
-
-def get_memory():
-    """
-    toma una muestra de la memoria alocada en instante de tiempo
-    """
-    return tracemalloc.take_snapshot()
-
-
-def delta_memory(stop_memory, start_memory):
-    """
-    calcula la diferencia en memoria alocada del programa entre dos
-    instantes de tiempo y devuelve el resultado en bytes (ej.: 2100.0 B)
-    """
-    memory_diff = stop_memory.compare_to(start_memory, "filename")
-    delta_memory = 0.0
-
-    # suma de las diferencias en uso de memoria
-    for stat in memory_diff:
-        delta_memory = delta_memory + stat.size_diff
-    # de Byte -> kByte
-    delta_memory = delta_memory/1024.0
-    return delta_memory

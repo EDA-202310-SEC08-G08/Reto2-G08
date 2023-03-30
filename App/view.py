@@ -47,16 +47,16 @@ def new_controller():
     """
     #CHECK: Llamar la función del controlador donde se crean las estructuras de datos
 
-    control = controller.new_controller('PROBING', 0.5)
+    control = controller.new_controller()
 
     return control
 
-def load_data(control, filename, memflag=True):
+def load_data(control, filename):
     """
     Carga los datos
     """
     #CHECK: Realizar la carga de datos
-    return controller.load_data(control, filename, memflag)
+    return controller.load_data(control, filename)
 
 
 def print_menu():
@@ -189,22 +189,6 @@ def print_charge_data(control):
             print(f"\nThere are {lt.size(data)} actividades economicas in {year}\n")
             print(first_and_last(data, column_names=columns, n=3))
 
-def print_memory_time(analyze):
-
-    if isinstance(analyze, (list, tuple)) is True:
-        print("Tiempo [ms]: ", f"{analyze[0]:.3f}", "||",
-              "Memoria [kB]: ", f"{analyze[1]:.3f}")
-    else:
-        print("Tiempo [ms]: ", f"{analyze:.3f}")
-
-def castBoolean(value):
-    """
-    Convierte un valor a booleano
-    """
-    if value in ('True', 'true', 'TRUE', 'T', 't', '1', 1, True):
-        return True
-    else:
-        return False
 
 
 def print_data(control, id):
@@ -334,17 +318,11 @@ if __name__ == "__main__":
                 #DEPRECATED Funciones a quitarse en la sustentacion por que se confunde el usuario
                 printchooseCSV()
                 suffix = fileChoose()
-                print("Desea observar el uso de memoria? (True/False)")
-                mem = input("Respuesta: ")
-                mem = castBoolean(mem)
                 print("Cargando información de los archivos ....\n")
-                analyze = load_data(control, suffix, mem)
-                all_size = lt.size(control["model"]["all_data"])
+                analyze = load_data(control, suffix)
+                all_size = control["model"].all_data.size()
                 msg1 = f"Carga de datos con archivo {suffix}"
                 msg2 = f"Se cargaron {all_size} datos de los archivos"
-                printHeader("Charge Data", msg1, msg2)
-                print_memory_time(analyze)
-                print(print_charge_data(control))
                 
             elif int(inputs) == 2:
                 print_req_1(control)

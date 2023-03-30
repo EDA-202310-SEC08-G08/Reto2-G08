@@ -28,6 +28,7 @@
 import config as cf
 import main_adts as adt
 import datetime
+from types import FunctionType
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
@@ -45,63 +46,225 @@ Se define la estructura de un catálogo de videos. El catálogo tendrá
 dos listas, una para los videos, otra para las categorias de los mismos.
 """
 
+#OPTIMIZE Objects
+
+class DataStructs:
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        self.map_by_year = adt.HashMap(numelements=10, maptype="PROBING", loadfactor=0.5)
+
+
+class Year(DataStructs):
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        self.map_by_sector = adt.HashMap(numelements=15, maptype="PROBING", loadfactor=0.5)
+
+
+class Sector(Year):
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        self.map_by_subsector = adt.HashMap(numelements=21, maptype="PROBING", loadfactor=0.5)
+
+        #NOTE: Atributos para el requerimiento 1
+        self.max_total_payable_balance = None #NOTE: EconomicActivity
+        self.min_total_payable_balance = None #NOTE: EconomicActivity
+        #NOTE: Atributos para el requerimiento 2
+        self.max_total_favorable_balance = None #NOTE: EconomicActivity
+        self.min_total_favorable_balance = None #NOTE: EconomicActivity
+
+
+
+class Subsector(Sector):
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        #NOTE: Atributos para el requerimiento 3
+        self.min_total_retencions = None #NOTE: EconomicActivity
+        self.max_total_retencions = None #NOTE: EconomicActivity
+        #NOTE: Atributos para el requerimiento 4
+        self.min_total_costs_and_payroll_expenses = None #NOTE: EconomicActivity
+        self.max_total_costs_and_payroll_expenses = None #NOTE: EconomicActivity
+        #NOTE: Atributos para el requerimiento 5
+        self.min_tax_discounts = None #NOTE: EconomicActivity
+        self.max_tax_discounts = None #NOTE: EconomicActivity
+
+        #HACK Atributos para el requerimiento 6
+        self.total_net_incomes = 0
+
+    def calculate_max_and_min(self, sort_criteria: FunctionType, attribute: str):
+        """
+        Función encargada de calcular el máximo y el mínimo de total retenciones
+        """
+
+        subsector_all_data = self.all_data
+
+        subsector_all_data.sort(sort_criteria)
+
+        max = subsector_all_data.get(1)
+
+        min = subsector_all_data.get(subsector_all_data.size())
+
+        if attribute == "total_retencions":
+            self.min_total_retencions = min
+            self.max_total_retencions = max
+        elif attribute == "total_costs_and_payroll_expenses":
+            self.min_total_costs_and_payroll_expenses = min
+            self.max_total_costs_and_payroll_expenses = max
+        elif attribute == "tax_discounts":
+            self.min_tax_discounts = min
+            self.max_tax_discounts = max
+
+        return max, min
+
+
+
+
+class EconomicActivity():
+
+    def __init__(self, data: dict):
+        """
+        This class represents an economic activity.
+
+        Attributes:
+        year (int): The year of the data.
+        code_activity (int): The code of the economic activity.
+        name_activity (str): The name of the economic activity.
+        code_subsector (int): The code of the subsector.
+        name_subsector (str): The name of the subsector.
+        code_sector (int): The code of the sector.
+        name_sector (str): The name of the sector.
+        total_net_incomes (int): The total net incomes.
+        total_favorable_balance (int): The total favorable balance.
+        total_payable_balance (int): The total payable balance.
+        total_retencions (int): The total retentions.
+        total_cost_and_expenses (int): The total cost and expenses.
+        costs (int): The costs.
+        costs_and_payroll_expenses (int): The costs and payroll expenses.
+        tax_discounts (int): The tax discounts.
+        """
+
+        self.year = int(data["Año"])
+        self.code_activity = (data["Código actividad económica"])
+        self.name_activity = data["Nombre actividad económica"]
+        self.code_subsector = (data["Código subsector económico"])
+        self.name_subsector = data["Nombre subsector económico"]
+        self.code_sector = (data["Código sector económico"])
+        self.name_sector = data["Nombre sector económico"]
+        self.total_net_incomes = int(data["Total ingresos netos"])
+        self.total_favorable_balance = int(data["Total saldo a favor"])
+        self.total_payable_balance = int(data["Total saldo a pagar"])
+        self.total_retencions = int(data["Total retenciones"])
+        self.total_cost_and_expenses = int(data["Total costos y gastos"])
+        self.costs = int(data["Costos"])
+        self.costs_and_payroll_expenses = int(data["Costos y gastos nómina"])
+        self.tax_discounts = int(data["Descuentos tributarios"])
+
 # Construccion de modelos
 
 
-def new_data_structs(maptype, loadfactor):
+def new_data_structs():
     """
     Inicializa las estructuras de datos del modelo. Las crea de
     manera vacía para posteriormente almacenar la información.
     """
     #CHECK: Inicializar las estructuras de datos
-    data_structs = {
-        "all_data": None,
-    }
 
-    #NOTE Lista de los datos "brutos" con toda la informacion desordenada
-    data_structs["all_data"] = lt.newList(datastructure="ARRAY_LIST", cmpfunction=cmp_by_id)
 
-    data_structs["map_by_year"] = mp.newMap(numelements=10,
-                                            maptype=maptype,
-                                            loadfactor=loadfactor,)
+    data_structs = DataStructs()
 
     return data_structs
 
 
 # Funciones para agregar informacion al modelo
 
-def add_data(data_structs, data):
+def add_data(data_structs : DataStructs, data):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
     d = new_data(data)
-    lt.addLast(data_structs["all_data"], d)
-    add_register_by_year(data_structs, data)
+
+    data_structs.all_data.addLast(d)
+
+    add_register_by_year(data_structs, d)
 
     return data_structs
 
-def add_register_by_year(data_structs, data):
+def add_register_by_year(data_structs : DataStructs, data : EconomicActivity):
 
-    map_by_year = data_structs["map_by_year"]
+    map_by_year = data_structs.map_by_year
 
-    year = data["Año"]
+    year = data.year
 
-    exist = mp.contains(map_by_year, year)
+    exist = map_by_year.contains(year)
 
     if not exist:
 
-        value = new_year(year)
-        mp.put(map_by_year, year, value)
-        entry = mp.get(map_by_year, year)
-        year_data = me.getValue(entry)["data"]
-        lt.addLast(year_data, data)
+        value = Year()
+        map_by_year.put(year, value)
+        entry = map_by_year.get(year)
+        year_data = me.getValue(entry)
+        year_data.all_data.addLast(data)
+        add_register_by_sector(year_data, data)
     else:
-        entry = mp.get(map_by_year, year)
-        year_data = me.getValue(entry)["data"]
-        lt.addLast(year_data, data)
+        entry = map_by_year.get(year)
+        year_data = me.getValue(entry)
+        year_data.all_data.addLast(data)
+        add_register_by_sector(year_data, data)
 
     return data_structs
+
+
+def add_register_by_sector(year : Year, data : EconomicActivity):
+
+    map_by_sector = year.map_by_sector
+
+    sector = data.code_sector
+
+    exist = map_by_sector.contains(sector)
+
+    if not exist:
+        value = Sector()
+        map_by_sector.put(sector, value)
+        entry = map_by_sector.get(sector)
+        sector_data = me.getValue(entry)
+        sector_data.all_data.addLast(data)
+        add_register_by_subsector(sector_data, data)
+    else:
+        entry = map_by_sector.get(sector)
+        sector_data = me.getValue(entry)
+        sector_data.all_data.addLast(data)
+        add_register_by_subsector(sector_data, data)
+
+    return year
+
+def add_register_by_subsector(sector : Sector, data : EconomicActivity):
+
+    map_by_subsector = sector.map_by_subsector
+
+    subsector = data.code_subsector
+
+    exist = map_by_subsector.contains(subsector)
+
+    if not exist:
+        value = Subsector()
+        map_by_subsector.put(subsector, value)
+        entry = map_by_subsector.get(subsector)
+        subsector_data = me.getValue(entry)
+        subsector_data.all_data.addLast(data)
+    else:
+        entry = map_by_subsector.get(subsector)
+        subsector_data = me.getValue(entry)
+        subsector_data.all_data.addLast(data)
+
+    return sector
 
 # Funciones para creacion de datos
 
@@ -109,28 +272,37 @@ def new_data(info):
     """
     Crea una nueva estructura para modelar los datos
     """
+    # try:
+    #     info["id"] = int(info["Año"] + info['Código actividad económica'])
+    # except:
+    #     i = 0
+    #     for char in info["Código actividad económica"]:
+    #         if char in [" ","/"]:
+    #             info["Código actividad económica"] = info["Código actividad económica"][0:i]
+    #             break
+    #         else:
+    #             i += 1
+    #     info["id"] = int(info["Año"] + info["Código actividad económica"])
+
+    # return info
+
+    data = EconomicActivity(info)
+
     try:
-        info["id"] = int(info["Año"] + info['Código actividad económica'])
+        data.id = int(data.year + data.code_activity)
     except:
         i = 0
-        for char in info["Código actividad económica"]:
+
+        for char in data.code_activity:
             if char in [" ","/"]:
-                info["Código actividad económica"] = info["Código actividad económica"][0:i]
+                data.code_activity = data.code_activity[0:i]
                 break
             else:
                 i += 1
-        info["id"] = int(info["Año"] + info["Código actividad económica"])
+        data.id = int(data.year + int(data.code_activity))
 
-    return info
+    return data
 
-def new_year(year):
-
-    structure = {'year': year,
-                 'data' : None}
-
-    structure['data'] = lt.newList(datastructure="ARRAY_LIST", cmpfunction=cmp_by_id)
-
-    return structure
 
 # Funciones de consulta
 
@@ -284,135 +456,5 @@ def sort(lst, sort_criteria):
     ordered_list = merg.sort(lst, sort_criteria)
 
     return ordered_list
-
-#OPTIMIZE Objectos
-
-
-class DataStructs:
-
-    def __init__(self):
-
-        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
-        self.map_by_year = adt.HashMap(numelements=10, maptype="PROBING", loadfactor=0.5)
-
-
-class Year(DataStructs):
-
-    def __init__(self):
-
-        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
-        self.map_by_sector = adt.HashMap(numelements=15, maptype="PROBING", loadfactor=0.5)
-
-
-class Sector(Year):
-
-    def __init__(self):
-
-        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
-        self.map_by_subsector = adt.HashMap(numelements=21, maptype="PROBING", loadfactor=0.5)
-
-        #NOTE: Atributos para el requerimiento 1
-        self.max_total_payable_balance = None #NOTE: EconomicActivity
-        self.min_total_payable_balance = None #NOTE: EconomicActivity
-        #NOTE: Atributos para el requerimiento 2
-        self.max_total_favorable_balance = None #NOTE: EconomicActivity
-        self.min_total_favorable_balance = None #NOTE: EconomicActivity
-
-
-
-class Subsector(Sector):
-
-    def __init__(self):
-
-        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
-        #NOTE: Atributos para el requerimiento 3
-        self.min_total_retencions = None #NOTE: EconomicActivity
-        self.max_total_retencions = None #NOTE: EconomicActivity
-        #NOTE: Atributos para el requerimiento 4
-        self.min_total_costs_and_payroll_expenses = None #NOTE: EconomicActivity
-        self.max_total_costs_and_payroll_expenses = None #NOTE: EconomicActivity
-        #NOTE: Atributos para el requerimiento 5
-        self.min_tax_discounts = None #NOTE: EconomicActivity
-        self.max_tax_discounts = None #NOTE: EconomicActivity
-
-        #HACK Atributos para el requerimiento 6
-        self.total_net_incomes = 0
-
-    def calculate_max_and_min(self, sort_criteria: function, attribute: str):
-        """
-        Función encargada de calcular el máximo y el mínimo de total retenciones
-        """
-
-        subsector_all_data = self.all_data
-
-        subsector_all_data.sort(sort_criteria)
-
-        max = subsector_all_data.get(1)
-
-        min = subsector_all_data.get(subsector_all_data.size())
-
-        if attribute == "total_retencions":
-            self.min_total_retencions = min
-            self.max_total_retencions = max
-        elif attribute == "total_costs_and_payroll_expenses":
-            self.min_total_costs_and_payroll_expenses = min
-            self.max_total_costs_and_payroll_expenses = max
-        elif attribute == "tax_discounts":
-            self.min_tax_discounts = min
-            self.max_tax_discounts = max
-
-        return max, min
-
-
-
-
-class EconomicActivity():
-
-    def __init__(self, data: dict):
-        """
-        This class represents an economic activity.
-
-        Attributes:
-        year (int): The year of the data.
-        code_activity (int): The code of the economic activity.
-        name_activity (str): The name of the economic activity.
-        code_subsector (int): The code of the subsector.
-        name_subsector (str): The name of the subsector.
-        code_sector (int): The code of the sector.
-        name_sector (str): The name of the sector.
-        total_net_incomes (int): The total net incomes.
-        total_favorable_balance (int): The total favorable balance.
-        total_payable_balance (int): The total payable balance.
-        total_retencions (int): The total retentions.
-        total_cost_and_expenses (int): The total cost and expenses.
-        total_costs (int): The total costs.
-        costs (int): The costs.
-        costs_and_payroll_expenses (int): The costs and payroll expenses.
-        tax_discounts (int): The tax discounts.
-        """
-
-        self.year = int(data["Año"])
-        self.code_activity = int(data["Código actividad económica"])
-        self.name_activity = data["Nombre actividad económica"]
-        self.code_subsector = int(data["Código subsector económico"])
-        self.name_subsector = data["Nombre subsector económico"]
-        self.code_sector = int(data["Código sector económico"])
-        self.name_sector = data["Nombre sector económico"]
-        self.total_net_incomes = int(data["Total ingresos netos"])
-        self.total_favorable_balance = int(data["Total saldo a favor"])
-        self.total_payable_balance = int(data["Total saldo a pagar"])
-        self.total_retencions = int(data["Total retenciones"])
-        self.total_cost_and_expenses = int(data["Total costos y gastos"])
-        self.total_costs = int(data["Total costos"])
-        self.costs = int(data["Costos"])
-        self.costs_and_payroll_expenses = int(data["Costos y gastos nómina"])
-        self.tax_discounts = int(data["Descuentos tributarios"])
-
-
-
-
-
-
-
 
 

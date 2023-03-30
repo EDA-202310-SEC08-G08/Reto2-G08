@@ -160,34 +160,7 @@ def printHeader(rqn, msg_rq, msg_answer):
     return control
 
 def print_charge_data(control):
-    columns = ['Año',
-               'Código actividad económica',
-               'Nombre actividad económica',
-               'Código sector económico',
-               'Nombre sector económico',
-               'Código subsector económico',
-               'Nombre subsector económico',
-               'Total ingresos netos',
-               'Total costos y gastos',
-               'Total saldo a pagar',
-               'Total saldo a favor',
-               ]
-    map_by_years = control['model']['map_by_year']
-
-    years = mp.keySet(map_by_years)
-    years = controller.sort(years)
-
-    for year in lt.iterator(years):
-
-        entry = mp.get(map_by_years, year)
-        data = me.getValue(entry)["data"]
-
-        if lt.size(data) < 6:
-            print(f'\nThere are only {lt.size(data)} actividades economicas in {year}\n')
-            print(simple_table(data, column_names=columns))
-        else:
-            print(f"\nThere are {lt.size(data)} actividades economicas in {year}\n")
-            print(first_and_last(data, column_names=columns, n=3))
+    pass
 
 
 
@@ -241,7 +214,7 @@ def print_req_3(control, code_year):
 
     columns_activity = ["Código actividad económica",
                         "Nombre actividad económica",
-                        "Descuentos tributarios",
+                        "Total retenciones",
                         "Total ingresos netos",
                         "Total costos y gastos",
                         "Total saldo a pagar",
@@ -302,47 +275,9 @@ def print_req_8(control):
     # TODO: Imprimir el resultado del requerimiento 8
     pass
 
-#ADD Funcion para imprimir los datos en tablas (Tabulate)
-
-def new_element(element, column_names):
-    """
-    Crea un nuevo elemento para agregar a la tabla
-    """
-    new_element = {}
-    for column in column_names:
-        new_element[column] = element[column]
-
-    return list(new_element.values())
-
-def first_and_last(lst, n, column_names):
-    table = []
-
-    start_list = lt.subList(lst, 1, n)
-    end_list = lt.subList(lst, lt.size(lst)-n+1, n)
-
-    for element in lt.iterator(start_list):
-        element = new_element(element, column_names)
-        table.append(element)
-    for element in lt.iterator(end_list):
-        element = new_element(element, column_names)
-        table.append(element)
-
-    return tabulate(table, tablefmt="grid", maxcolwidths=20, headers=column_names)
-
-def simple_table(lst, column_names):
-
-    table = []
-
-    for element in lt.iterator(lst):
-        element = new_element(element, column_names)
-        table.append(element)
-
-    return tabulate(table, tablefmt="grid", maxcolwidths=20, headers=column_names)
-
-
 
 # Se crea el controlador asociado a la vista
-control = new_controller()
+
 
 # main del reto
 if __name__ == "__main__":
@@ -356,6 +291,7 @@ if __name__ == "__main__":
         inputs = input('Seleccione una opción para continuar\n')
         try:
             if int(inputs) == 1:
+                control = new_controller()
                 #DEPRECATED Funciones a quitarse en la sustentacion por que se confunde el usuario
                 printchooseCSV()
                 suffix = fileChoose()

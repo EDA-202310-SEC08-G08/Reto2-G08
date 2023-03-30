@@ -114,7 +114,7 @@ class EconomicActivity():
     def create_table(self, columns):
         tabulate_list = []
         tabulate_list.append(self.make_list(columns))
-        print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "fancy_grid"))
+        print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "fancy_grid", maxheadercolwidths=20, maxcolwidths=20))
         return tabulate_list
 
     def make_list(self, columns):
@@ -154,6 +154,7 @@ class Year(DataStructs):
 class Sector(Year):
 
     def __init__(self):
+
         self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
         self.map_by_subsector = adt.HashMap(numelements=21, maptype="PROBING", loadfactor=0.5)
         #NOTE: Atributos para el requerimiento 1
@@ -185,7 +186,6 @@ class Sector(Year):
         self.actualize_dict()
 
     def actualize_dict(self):
-
         self.data_dict["Total ingresos netos"] = self.total_all_net_incomes
         self.data_dict["Total costos y gastos"] = self.total_all_costs_and_expenses
         self.data_dict["Total saldo a pagar"] = self.total_all_payable_balance
@@ -245,6 +245,7 @@ class Sector(Year):
 class Subsector(Sector):
 
     def __init__(self):
+
 
         self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
         #NOTE: Atributos para el requerimiento 3
@@ -347,11 +348,10 @@ class Subsector(Sector):
             tabular = []
 
             for element in list:
-
                 element_list = element.make_list(columns)
                 tabular.append(element_list)
 
-            table = tabulate(tabular, headers=columns, tablefmt="grid")
+            table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=20, maxcolwidths=20)
 
             return table
 
@@ -371,8 +371,8 @@ class Subsector(Sector):
                 element_list = element.make_list(columns)
                 tabular_max.append(element_list)
 
-            table_min = tabulate(tabular_min, headers=columns, tablefmt="grid")
-            table_max = tabulate(tabular_max, headers=columns, tablefmt="grid")
+            table_min = tabulate(tabular_min, headers=columns, tablefmt="grid", maxheadercolwidths=20, maxcolwidths=20)
+            table_max = tabulate(tabular_max, headers=columns, tablefmt="grid", maxheadercolwidths=20, maxcolwidths=20)
 
             return table_min, table_max
 
@@ -380,7 +380,7 @@ class Subsector(Sector):
         tabular = []
         tabular.append(self.create_list(columns))
         columns = self._reformatColumns(columns)
-        return tabulate(tabular, headers=columns, tablefmt="grid")
+        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=20, maxheadercolwidths=20)
 
     def _reformatColumns(self, columns: list):
 
@@ -484,7 +484,7 @@ def add_register_by_sector(year : Year, data : EconomicActivity):
         sector_data.all_data.addLast(data)
         sector_data.give_attributes(data)
         sector_data.actualize(data)
-        add_register_by_subsector(sector_data, data)
+        add_register_by_subsector(sector_data,year, data)
 
     else:
         entry = map_by_sector.get(sector)
@@ -492,17 +492,19 @@ def add_register_by_sector(year : Year, data : EconomicActivity):
         sector_data.all_data.addLast(data)
         sector_data.sum_values(data)
         sector_data.actualize(data)
-        add_register_by_subsector(sector_data, data)
+        add_register_by_subsector(sector_data,year, data)
 
     return year
 
-def add_register_by_subsector(sector : Sector, data : EconomicActivity):
+def add_register_by_subsector(sector : Sector, year: Year, data : EconomicActivity):
 
     map_by_subsector = sector.map_by_subsector
+    year_map_by_subsector = year.map_by_subsectors
 
     subsector = data.code_subsector
 
     exist = map_by_subsector.contains(subsector)
+    exist_year = year_map_by_subsector.contains(subsector)
 
     if not exist:
         value = Subsector()
@@ -514,6 +516,20 @@ def add_register_by_subsector(sector : Sector, data : EconomicActivity):
         subsector_data.all_data.addLast(data)
     else:
         entry = map_by_subsector.get(subsector)
+        subsector_data = me.getValue(entry)
+        subsector_data.actualize(data)
+        subsector_data.all_data.addLast(data)
+
+    if not exist_year:
+        value = Subsector()
+        year_map_by_subsector.put(subsector, value)
+        entry = year_map_by_subsector.get(subsector)
+        subsector_data = me.getValue(entry)
+        subsector_data.give_attributes(data)
+        subsector_data.actualize(data)
+        subsector_data.all_data.addLast(data)
+    else:
+        entry = year_map_by_subsector.get(subsector)
         subsector_data = me.getValue(entry)
         subsector_data.actualize(data)
         subsector_data.all_data.addLast(data)
@@ -546,21 +562,6 @@ def new_data(info):
 
 
 # Funciones de consulta
-
-def get_data(data_structs, id):
-    """
-    Retorna un dato a partir de su ID
-    """
-    #TODO: Crear la función para obtener un dato de una lista
-    pass
-
-
-def data_size(data_structs):
-    """
-    Retorna el tamaño de la lista de datos
-    """
-    #TODO: Crear la función para obtener el tamaño de una lista
-    pass
 
 
 def req_1(data_structs: DataStructs, code_year: int, code_sector: str):
@@ -668,7 +669,6 @@ def compare_by_id(data_1 : EconomicActivity, data_2: EconomicActivity):
     """
     id_1 = data_1.id
     id_2 = data_2.id
-
     if id_1 > id_2:
         return 1
     elif id_1 < id_2:
@@ -683,8 +683,6 @@ def compare_by_rq1(data_1 : EconomicActivity, data_2: EconomicActivity):
 
     id_1 = data_1.total_payable_balance
     id_2 = data_2.total_payable_balance
-
-
     if id_1 > id_2:
         return True
     else:
@@ -694,8 +692,6 @@ def compare_by_rq2(data_1 : EconomicActivity, data_2: EconomicActivity):
     """
     Función encargada de comparar dos datos
     """
-
-
     id_1 = data_1.total_favorable_balance
     id_2 = data_2.total_favorable_balance
 
@@ -708,8 +704,6 @@ def compare_by_rq3(data1 : Subsector, data2: Subsector):
 
     id1 = data1.total_all_retencions
     id2 = data2.total_all_retencions
-
-
 
     if id1 == id2:
         if data1.name_subsector > data2.name_subsector:
@@ -736,40 +730,7 @@ def compare_by_retencions(data1 : EconomicActivity, data2: EconomicActivity):
     else:
         return False
 
-
 #NOTE Funciones utilizadas para comparar las llaves dentro de un mapa
 
 
-def compare_map_keys(year, entry):
-    """
-    Compara dos llaves de un mapa
-    """
-
-    year_key = me.getKey(entry)
-
-    if (int(year) == int(year_key)):
-        return 0
-    elif (int(year) > int(year_key)):
-        return 1
-    else:
-        return -1
-
 #NOTE Funciones de ordenamiento
-
-
-def sort_criteria(data_1, data_2):
-    """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
-
-    Args:
-        data1 (_type_): _description_
-        data2 (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    #TODO: Crear función comparadora para ordenar
-    pass
-
-
-
-

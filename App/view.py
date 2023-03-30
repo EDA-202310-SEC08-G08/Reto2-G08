@@ -178,10 +178,12 @@ def print_req_1(control, code_year, code_sector):
     # TODO: Imprimir el resultado del requerimiento 1
 
 
-    activity =  controller.req_1(control, code_year, code_sector)
+    activity, time =  controller.req_1(control, code_year, code_sector)
 
     if activity is False:
         return (print("\nNo hay datos para el año y sector ingresados\n"))
+
+    print(time)
 
     return activity.create_table(["Código actividad económica", "Nombre actividad económica","Código subsector económico", "Nombre subsector económico",
                                   "Total ingresos netos", "Total costos y gastos", "Total saldo a pagar", "Total saldo a favor"	])
@@ -192,10 +194,12 @@ def print_req_2(control, code_year, code_sector):
         Función que imprime la solución del Requerimiento 2 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 2
-    activity =  controller.req_1(control, code_year, code_sector)
+    activity, time =  controller.req_1(control, code_year, code_sector)
 
     if activity is False:
         return (print("\nNo hay datos para el año y sector ingresados\n"))
+
+    print(time)
 
     return activity.create_table(["Código actividad económica", "Nombre actividad económica","Código subsector económico", "Nombre subsector económico",
                                   "Total ingresos netos", "Total costos y gastos","Total saldo a pagar", "Total saldo a favor"])
@@ -206,7 +210,9 @@ def print_req_3(control, code_year):
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    subsector = controller.req_3(control, code_year)
+    subsector, time = controller.req_3(control, code_year)
+
+    print(time)
 
     if subsector is False:
         return (print( "\nNo hay datos para el año ingresado\n"))
@@ -250,7 +256,9 @@ def print_req_4(control, code_year):
         Función que imprime la solución del Requerimiento 4 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 4
-    subsector = controller.req_4(control, code_year)
+    subsector, time = controller.req_4(control, code_year)
+
+    print(time)
 
     if subsector is False:
         return print( "\nNo hay datos para el año ingresado\n")
@@ -294,10 +302,12 @@ def print_req_5(control, code_year):
         Función que imprime la solución del Requerimiento 5 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 5
-    subsector = controller.req_5(control, code_year)
+    subsector, time = controller.req_5(control, code_year)
 
     if subsector is False:
         return print( "\nNo hay datos para el año ingresado\n")
+
+    print(time)
 
     columns_sector = ["Código sector económico",
                         "Nombre sector económico",
@@ -340,8 +350,12 @@ def print_req_6(control, code_year):
     # TODO: Imprimir el resultado del requerimiento 6
     if controller.req_6(control, code_year) is False:
         return print( "\nNo hay datos para el año ingresado\n")
+    data , time = controller.req_6(control, code_year)
+    print(time)
 
-    sector, max_subsector, min_subsector = controller.req_6(control, code_year)
+    sector = data[0]
+    max_subsector = data[1]
+    min_subsector = data[2]
 
     columns_sector = ["Código sector económico",
                       "Nombre sector económico",
@@ -376,10 +390,12 @@ def print_req_7(control, code_year, code_subsector, top:int):
     """
     # TODO: Imprimir el resultado del requerimiento 7
 
-    subsector = controller.req_7(control, code_year, code_subsector)
+    subsector, time = controller.req_7(control, code_year, code_subsector)
 
     if subsector is False:
         return print("\n No hay datos para el año y subsector ingresados\n")
+
+    print(time)
 
     columns_activity = ["Código actividad económica",
                         "Nombre actividad económica",
@@ -424,7 +440,8 @@ if __name__ == "__main__":
                 printchooseCSV()
                 suffix = fileChoose()
                 print("Cargando información de los archivos ....\n")
-                analyze = load_data(control, suffix)
+                analyze, time = load_data(control, suffix)
+                print(time)
                 all_size = control["model"].all_data.size()
                 msg1 = f"Carga de datos con archivo {suffix}"
                 msg2 = f"Se cargaron {all_size} datos de los archivos"

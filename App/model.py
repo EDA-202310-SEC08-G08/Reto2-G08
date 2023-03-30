@@ -443,14 +443,14 @@ class Subsector(Sector):
             return self._create_table_data(list_top.subList(1, top), columns)
 
         elif top > 12:
-
+            list_top = list_top.subList(1, top)
             new_list = adt.List()
 
-            for element in list_top.subList(1, 3):
+            for element in list_top.subList(1, 6):
 
                 new_list.addLast(element)
 
-            for element in list_top.subList(list_top.size() - 2, 3):
+            for element in list_top.subList(list_top.size() - 5, 6):
 
                 new_list.addLast(element)
 
@@ -811,7 +811,6 @@ def req_7(data_structs: DataStructs, code_year: int, code_sector: str):
     subsector.sort_data_subsector(compare_by_total_costs_and_expenses, "total_costs_and_expenses")
 
     return subsector
-
 
 
 def req_8(data_structs):

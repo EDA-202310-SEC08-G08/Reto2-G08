@@ -139,32 +139,12 @@ def load_data(control, filename):
     input_file = csv.DictReader(open(rute, encoding="utf-8"))
     for register in input_file:
         model.add_data(control["model"], register)
-
-
     return control
 
 
 # Funciones de ordenamiento
 
-def sort(lst):
-    """
-    Ordena los datos del modelo
-    """
-    #TODO: Llamar la función del modelo para ordenar los datos
-
-    return model.sort(lst, model.sc_by_element)
-
-
-# Funciones de consulta sobre el catálogo
-
-def get_data(control, id):
-    """
-    Retorna un dato por su ID.
-    """
-    #TODO: Llamar la función del modelo para obtener un dato
-    pass
-
-
+@timer_y_mem
 def req_1(control, code_year, code_sector):
     """
     Retorna el resultado del requerimiento 1
@@ -173,7 +153,7 @@ def req_1(control, code_year, code_sector):
 
     return model.req_1(control["model"], code_year, code_sector)
 
-
+@timer_y_mem
 def req_2(control, code_year, code_sector):
     """
     Retorna el resultado del requerimiento 2
@@ -181,7 +161,7 @@ def req_2(control, code_year, code_sector):
     # TODO: Modificar el requerimiento 2
     return model.req_2(control["model"], code_year, code_sector)
 
-
+@timer_y_mem
 def req_3(control, code_year):
     """
     Retorna el resultado del requerimiento 3
@@ -189,7 +169,7 @@ def req_3(control, code_year):
     # TODO: Modificar el requerimiento 3
     return model.req_3(control["model"], code_year)
 
-
+@timer_y_mem
 def req_4(control, code_year):
     """
     Retorna el resultado del requerimiento 4
@@ -198,7 +178,7 @@ def req_4(control, code_year):
 
     return model.req_4(control["model"], code_year)
 
-
+@timer_y_mem
 def req_5(control, code_year):
     """
     Retorna el resultado del requerimiento 5
@@ -207,6 +187,7 @@ def req_5(control, code_year):
 
     return model.req_5(control["model"], code_year)
 
+@timer_y_mem
 def req_6(control, code_year):
     """
     Retorna el resultado del requerimiento 6
@@ -214,7 +195,7 @@ def req_6(control, code_year):
     # TODO: Modificar el requerimiento 6
     return model.req_6(control["model"], code_year)
 
-
+@timer_y_mem
 def req_7(control, code_year, code_sector):
     """
     Retorna el resultado del requerimiento 7

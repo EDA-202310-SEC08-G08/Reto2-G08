@@ -180,6 +180,9 @@ def print_req_1(control, code_year, code_sector):
 
     activity =  controller.req_1(control, code_year, code_sector)
 
+    if activity is False:
+        return (print("\nNo hay datos para el año y sector ingresados\n"))
+
     return activity.create_table(["Código actividad económica", "Nombre actividad económica","Código subsector económico", "Nombre subsector económico",
                                   "Total ingresos netos", "Total costos y gastos", "Total saldo a pagar", "Total saldo a favor"	])
 
@@ -191,6 +194,9 @@ def print_req_2(control, code_year, code_sector):
     # TODO: Imprimir el resultado del requerimiento 2
     activity =  controller.req_1(control, code_year, code_sector)
 
+    if activity is False:
+        return (print("\nNo hay datos para el año y sector ingresados\n"))
+
     return activity.create_table(["Código actividad económica", "Nombre actividad económica","Código subsector económico", "Nombre subsector económico",
                                   "Total ingresos netos", "Total costos y gastos","Total saldo a pagar", "Total saldo a favor"])
 
@@ -201,6 +207,9 @@ def print_req_3(control, code_year):
     """
     # TODO: Imprimir el resultado del requerimiento 3
     subsector = controller.req_3(control, code_year)
+
+    if subsector is False:
+        return (print( "\nNo hay datos para el año ingresado\n"))
 
     columns_sector = ["Código sector económico",
                         "Nombre sector económico",
@@ -220,7 +229,7 @@ def print_req_3(control, code_year):
                         "Total saldo a pagar",
                         "Total saldo a favor"]
 
-    subsector_table = subsector.create_table(columns_sector)
+    subsector_table = subsector.create_table_subsector(columns_sector)
     lists = subsector.create_tables_min_max("total_retencions", columns_activity)
 
     if type(lists) == tuple:
@@ -243,6 +252,9 @@ def print_req_4(control, code_year):
     # TODO: Imprimir el resultado del requerimiento 4
     subsector = controller.req_4(control, code_year)
 
+    if subsector is False:
+        return print( "\nNo hay datos para el año ingresado\n")
+
     columns_sector = ["Código sector económico",
                         "Nombre sector económico",
                         "Código subsector económico",
@@ -261,7 +273,7 @@ def print_req_4(control, code_year):
                         "Total saldo a pagar",
                         "Total saldo a favor"]
 
-    subsector_table = subsector.create_table(columns_sector)
+    subsector_table = subsector.create_table_subsector(columns_sector)
     lists = subsector.create_tables_min_max("total_costs_and_payroll_expenses", columns_activity)
 
     if type(lists) == tuple:
@@ -284,6 +296,9 @@ def print_req_5(control, code_year):
     # TODO: Imprimir el resultado del requerimiento 5
     subsector = controller.req_5(control, code_year)
 
+    if subsector is False:
+        return print( "\nNo hay datos para el año ingresado\n")
+
     columns_sector = ["Código sector económico",
                         "Nombre sector económico",
                         "Código subsector económico",
@@ -302,7 +317,7 @@ def print_req_5(control, code_year):
                         "Total saldo a pagar",
                         "Total saldo a favor"]
 
-    subsector_table = subsector.create_table(columns_sector)
+    subsector_table = subsector.create_table_subsector(columns_sector)
     lists = subsector.create_tables_min_max("tax_discounts", columns_activity)
 
     if type(lists) == tuple:
@@ -323,6 +338,8 @@ def print_req_6(control, code_year):
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
+    if controller.req_6(control, code_year) is False:
+        return print( "\nNo hay datos para el año ingresado\n")
 
     sector, max_subsector, min_subsector = controller.req_6(control, code_year)
 
@@ -344,21 +361,39 @@ def print_req_6(control, code_year):
                          "Actividad económica que menos aportó",
                          "Actividad económica que más aportó"]
 
-    table_sector = sector.create_table(columns_sector)
-    table_max_subsector = max_subsector.create_table(columns_subsector, [15,15,15,15,15,15])
-    table_min_subsector = min_subsector.create_table(columns_subsector, [15,15,15,15,15,15])
+    table_sector = sector.create_table_sector(columns_sector)
+    table_max_subsector = max_subsector.create_table_subsector(columns_subsector, [15,15,15,15,15,15])
+    table_min_subsector = min_subsector.create_table_subsector(columns_subsector, [15,15,15,15,15,15])
 
     print(table_sector)
     print(table_max_subsector)
     print(table_min_subsector)
 
 
-def print_req_7(control):
+def print_req_7(control, code_year, code_subsector, top:int):
     """
         Función que imprime la solución del Requerimiento 7 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 7
-    pass
+
+    subsector = controller.req_7(control, code_year, code_subsector)
+
+    if subsector is False:
+        return print("\n No hay datos para el año y subsector ingresados\n")
+
+    columns_activity = ["Código actividad económica",
+                        "Nombre actividad económica",
+                        "Código sector económico",
+                        "Nombre sector económico",
+                        "Descuentos tributarios",
+                        "Total ingresos netos",
+                        "Total costos y gastos",
+                        "Total saldo a pagar",
+                        "Total saldo a favor"]
+
+    table = subsector.create_table_top(columns_activity, top, "total_costs_and_expenses")
+
+    print(table)
 
 
 def print_req_8(control):
@@ -426,7 +461,10 @@ if __name__ == "__main__":
                 print_req_6(control, code_year)
 
             elif int(inputs) == 8:
-                print_req_7(control)
+                code_year = int(input("Ingrese el año a buscar: "))
+                code_subsector = input("Ingrese el código del subsector a buscar: ")
+                top = int(input("Ingrese el número TOP actividades a mostrar: "))
+                print_req_7(control, code_year, code_subsector, top)
 
             elif int(inputs) == 9:
                 print_req_8(control)

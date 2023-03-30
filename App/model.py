@@ -270,7 +270,7 @@ class Sector(Year):
         self.actualize_dict()
         return max, min
 
-    def create_table(self, columns: list, maxwidht = 20):
+    def create_table_sector(self, columns: list, maxwidht = 20):
         tabular = []
         tabular.append(self.create_list(columns))
         columns = self._reformatColumns(columns)
@@ -321,6 +321,9 @@ class Subsector(Sector):
         self.tax_discounts = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
         #NOTE: Atributos para el requerimiento 6
         self.total_net_incomes = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+        #NOTE: Atributos para el requerimiento 7
+        self.total_costs_and_expenses = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+
         self.min_activity = None
         self.max_activity = None
 
@@ -403,10 +406,12 @@ class Subsector(Sector):
             self.min_activity = subsector_all_data.lastElement()
             self.max_activity = subsector_all_data.firstElement()
             self.actualize_dict()
+        elif attribute == "total_costs_and_expenses":
+            self.total_costs_and_expenses = subsector_all_data
 
     def is_list_created(func: FunctionType):
         def decorator(self, *args, **kwargs):
-            if self.total_retencions.isEmpty() and self.total_costs_and_payroll_expenses.isEmpty() and self.tax_discounts.isEmpty():
+            if self.total_retencions.isEmpty() and self.total_costs_and_payroll_expenses.isEmpty() and self.tax_discounts.isEmpty() and self.total_costs_and_expenses:
                 print("La lista no ha sido creada")
             else:
                 return func(self , *args, **kwargs)
@@ -425,6 +430,44 @@ class Subsector(Sector):
         elif attribute == "tax_discounts":
             return self._create_table_min_max(self.tax_discounts, columns)
 
+    def create_table_top(self, columns, top: int, attribute, maxwidth = 20):
+
+        list_top = getattr(self, attribute)
+
+        if list_top.size() < top:
+
+            return self._create_table_data(list_top, columns)
+
+        elif list_top.size() > top and top <= 12:
+
+            return self._create_table_data(list_top.subList(1, top), columns)
+
+        elif top > 12:
+
+            new_list = adt.List()
+
+            for element in list_top.subList(1, 3):
+
+                new_list.addLast(element)
+
+            for element in list_top.subList(list_top.size() - 2, 3):
+
+                new_list.addLast(element)
+
+            return self._create_table_data(new_list, columns)
+
+    def _create_table_data(self, list: adt.List, columns, maxwidth = 20):
+
+        tabular = []
+
+        for element in list:
+            element_list = element.make_list(columns)
+            tabular.append(element_list)
+
+        table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
+
+        return table
+
     def _create_table_min_max(self, list: adt.List, columns: list, maxwidth = 20):
         """
         Funcion encargada de crear las tablas de minimo y maximo de las actividades economicas
@@ -432,13 +475,7 @@ class Subsector(Sector):
 
         if list.size() < 6:
 
-            tabular = []
-
-            for element in list:
-                element_list = element.make_list(columns)
-                tabular.append(element_list)
-
-            table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
+            table = self._create_table_data(list, columns, maxwidth)
 
             return table
 
@@ -446,24 +483,13 @@ class Subsector(Sector):
 
             min_list = list.subList(1, 3)
             max_list = list.subList(list.size() - 2, 3)
-            tabular_min = []
-            tabular_max = []
 
-            for element in min_list:
-
-                element_list = element.make_list(columns)
-                tabular_min.append(element_list)
-
-            for element in max_list:
-                element_list = element.make_list(columns)
-                tabular_max.append(element_list)
-
-            table_min = tabulate(tabular_min, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
-            table_max = tabulate(tabular_max, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
+            table_min = self._create_table_data(min_list, columns, maxwidth)
+            table_max = self._create_table_data(max_list, columns, maxwidth)
 
             return table_min, table_max
 
-    def create_table(self, columns: list, maxwidth = 20):
+    def create_table_subsector(self, columns: list, maxwidth = 20):
         tabular = []
         tabular.append(self.create_list(columns))
         columns = self._reformatColumns(columns)
@@ -666,8 +692,16 @@ def req_1(data_structs: DataStructs, code_year: int, code_sector: str):
 
     map_year = data_structs.map_by_year
     # map_year.get(code_year) -> entry = {"key": code_year, "value": year_data} year_data = Year()
+
+    if not map_year.contains(code_year):
+        return False
+
     year_data = me.getValue(map_year.get(code_year))
     map_sector = year_data.map_by_sector
+
+    if not map_sector.contains(code_sector):
+        return False
+
     sector_data = me.getValue(map_sector.get(code_sector))
     max, min = sector_data.obtain_max_and_min_economic_activity(compare_by_rq1, "total_payable_balance")
 
@@ -681,8 +715,16 @@ def req_2(data_structs: DataStructs, code_year: int, code_sector: str):
     # CHECK: Realizar el requerimiento 1
 
     map_year = data_structs.map_by_year
+
+    if not map_year.contains(code_year):
+        return False
+
     year_data = me.getValue(map_year.get(code_year))
     map_sector = year_data.map_by_sector
+
+    if not map_sector.contains(code_sector):
+        return False
+
     sector_data = me.getValue(map_sector.get(code_sector))
     max, min = sector_data.obtain_max_and_min_economic_activity(compare_by_rq2, "total_favorable_balance")
 
@@ -696,6 +738,8 @@ def req_3(data_structs, code_year):
     # CHECK: Realizar el requerimiento 3
 
     map_year = data_structs.map_by_year
+    if not map_year.contains(code_year):
+        return False
     year_data = me.getValue(map_year.get(code_year))
     max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq3)
     min_subsector.sort_data_subsector(compare_by_retencions, "total_retencions")
@@ -710,6 +754,8 @@ def req_4(data_structs, code_year):
     # TODO: Realizar el requerimiento 4
 
     map_year = data_structs.map_by_year
+    if not map_year.contains(code_year):
+        return False
     year_data = me.getValue(map_year.get(code_year))
     max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq4)
     max_subsector.sort_data_subsector(compare_by_payroll_expenses, "total_costs_and_payroll_expenses")
@@ -722,6 +768,8 @@ def req_5(data_structs, code_year):
     """
     # TODO: Realizar el requerimiento 5
     map_year = data_structs.map_by_year
+    if not map_year.contains(code_year):
+        return False
     year_data = me.getValue(map_year.get(code_year))
     max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq5)
     max_subsector.sort_data_subsector(compare_by_tax_discounts, "tax_discounts")
@@ -735,6 +783,8 @@ def req_6(data_structs, code_year):
     """
     # TODO: Realizar el requerimiento 6
     map_year = data_structs.map_by_year
+    if not map_year.contains(code_year):
+        return False
     year_data = me.getValue(map_year.get(code_year))
     max_sector, min_sector = year_data.search_min_max_sector(compare_by_sector_rq6)
     max_subsector, min_subsector =  max_sector.obtain_max_and_min_subsector(compare_by_subsector_rq6)
@@ -744,12 +794,24 @@ def req_6(data_structs, code_year):
     return max_sector, max_subsector, min_subsector
 
 
-def req_7(data_structs):
+def req_7(data_structs: DataStructs, code_year: int, code_sector: str):
     """
     Función que soluciona el requerimiento 7
     """
     # TODO: Realizar el requerimiento 7
-    pass
+
+    map_years = data_structs.map_by_year
+    if not map_years.contains(code_year):
+        return False
+    year = me.getValue(map_years.get(code_year))
+    map_subsectors = year.map_by_subsectors
+    if not map_subsectors.contains(code_sector):
+        return False
+    subsector = me.getValue(map_subsectors.get(code_sector))
+    subsector.sort_data_subsector(compare_by_total_costs_and_expenses, "total_costs_and_expenses")
+
+    return subsector
+
 
 
 def req_8(data_structs):
@@ -855,13 +917,33 @@ def compare_by_net_income(data1 : EconomicActivity, data2: EconomicActivity):
     name2 = data2.name_activity
     return compare(id1, id2, name1, name2)
 
+def compare_by_total_costs_and_expenses(data1 : EconomicActivity, data2: EconomicActivity):
+
+    id1 = data1.total_cost_and_expenses
+    id2 = data2.total_cost_and_expenses
+    name1 = data1.name_activity
+    name2 = data2.name_activity
+    return reverse_compare(id1, id2, name1, name2)
+
+
 def compare(id1, id2, name1, name2):
     if id1 == id2:
-        if name1 > name2:
+        if name1 < name2:
             return True
         else:
             return False
     elif id1 > id2:
+        return True
+    else:
+        return False
+
+def reverse_compare(id1, id2, name1, name2):
+    if id1 == id2:
+        if name1 < name2:
+            return True
+        else:
+            return False
+    elif id1 < id2:
         return True
     else:
         return False

@@ -21,6 +21,7 @@
  """
  
 import config as cf
+from tabulate import tabulate
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
 from DISClib.ADT import queue as qu
@@ -332,6 +333,8 @@ class List:
                 return "La lista no esta ordenada"
 
         return decorator
+
+
 
 
     @isSorted

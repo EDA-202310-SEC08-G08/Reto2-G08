@@ -227,7 +227,40 @@ def print_req_3(control, code_year):
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    return controller.req_3(control, code_year)
+    subsector = controller.req_3(control, code_year)
+
+    columns_sector = ["Código sector económico",
+                        "Nombre sector económico",
+                        "Código subsector económico",
+                        "Nombre subsector económico",
+                        "Total de retenciones",
+                        "Total ingresos netos",
+                        "Total costos y gastos",
+                        "Total saldo a pagar",
+                        "Total saldo a favor"]
+
+    columns_activity = ["Código actividad económica",
+                        "Nombre actividad económica",
+                        "Descuentos tributarios",
+                        "Total ingresos netos",
+                        "Total costos y gastos",
+                        "Total saldo a pagar",
+                        "Total saldo a favor"]
+
+    subsector_table = subsector.create_table(columns_sector)
+    lists = subsector.create_tables_min_max("total_retencions", columns_activity)
+
+    if type(lists) == tuple:
+        min_table = lists[0]
+        max_table = lists[1]
+
+        print(subsector_table)
+        print(min_table)
+        print(max_table)
+
+    else:
+        print(subsector_table)
+        print(lists)
 
 
 def print_req_4(control):

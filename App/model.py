@@ -168,6 +168,16 @@ class Year(DataStructs):
 
     def search_min_max_sector(self, sort_criteria):
         all_sectors = self.map_by_sector.valueSet()
+        for sector in all_sectors:
+            if self.subsector_max is None:
+                self.subsector_max = sector
+            elif sort_criteria(sector, self.subsector_max):
+                self.subsector_max = sector
+            if self.subsector_min is None:
+                self.subsector_min = sector
+            elif sort_criteria(sector, self.subsector_min) == False:
+                self.subsector_min = sector
+        return self.subsector_max, self.subsector_min
 
 
 class Sector(Year):
@@ -643,15 +653,10 @@ def req_1(data_structs: DataStructs, code_year: int, code_sector: str):
     # CHECK: Realizar el requerimiento 1
 
     map_year = data_structs.map_by_year
-
     # map_year.get(code_year) -> entry = {"key": code_year, "value": year_data} year_data = Year()
-
     year_data = me.getValue(map_year.get(code_year))
-
     map_sector = year_data.map_by_sector
-
     sector_data = me.getValue(map_sector.get(code_sector))
-
     max, min = sector_data.obtain_max_and_min_economic_activity(compare_by_rq1, "total_payable_balance")
 
     return max
@@ -664,13 +669,9 @@ def req_2(data_structs: DataStructs, code_year: int, code_sector: str):
     # CHECK: Realizar el requerimiento 1
 
     map_year = data_structs.map_by_year
-
     year_data = me.getValue(map_year.get(code_year))
-
     map_sector = year_data.map_by_sector
-
     sector_data = me.getValue(map_sector.get(code_sector))
-
     max, min = sector_data.obtain_max_and_min_economic_activity(compare_by_rq2, "total_favorable_balance")
 
     return max
@@ -683,11 +684,8 @@ def req_3(data_structs, code_year):
     # CHECK: Realizar el requerimiento 3
 
     map_year = data_structs.map_by_year
-
     year_data = me.getValue(map_year.get(code_year))
-
     max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq3)
-
     min_subsector.sort_data_subsector(compare_by_retencions, "total_retencions")
 
     return min_subsector
@@ -701,9 +699,7 @@ def req_4(data_structs, code_year):
 
     map_year = data_structs.map_by_year
     year_data = me.getValue(map_year.get(code_year))
-
     max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq4)
-
     max_subsector.sort_data_subsector(compare_by_payroll_expenses, "total_costs_and_payroll_expenses")
 
     return max_subsector
@@ -715,20 +711,25 @@ def req_5(data_structs, code_year):
     # TODO: Realizar el requerimiento 5
     map_year = data_structs.map_by_year
     year_data = me.getValue(map_year.get(code_year))
-
     max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq5)
-
     max_subsector.sort_data_subsector(compare_by_tax_discounts, "tax_discounts")
 
     return max_subsector
 
 
-def req_6(data_structs):
+def req_6(data_structs, code_year):
     """
     Función que soluciona el requerimiento 6
     """
     # TODO: Realizar el requerimiento 6
-    pass
+    map_year = data_structs.map_by_year
+    year_data = me.getValue(map_year.get(code_year))
+    max_sector, min_sector = year_data.search_min_max_sector(compare_by_sector_rq6)
+    max_subsector, min_subsector =  max_sector.obtain_max_and_min_subsector(compare_by_subsector_rq6)
+    max_subsector.sort_data_subsector(compare_by_net_income, "total_net_incomes")
+    min_subsector.sort_data_subsector(compare_by_net_income, "total_net_incomes")
+
+    return max_sector, max_subsector, min_subsector
 
 
 def req_7(data_structs):
@@ -831,6 +832,13 @@ def compare_by_retencions(data1 : EconomicActivity, data2: EconomicActivity):
 def compare_by_tax_discounts(data1 : EconomicActivity, data2: EconomicActivity):
     id1 = data1.tax_discounts
     id2 = data2.tax_discounts
+    name1 = data1.name_activity
+    name2 = data2.name_activity
+    return compare(id1, id2, name1, name2)
+
+def compare_by_net_income(data1 : EconomicActivity, data2: EconomicActivity):
+    id1 = data1.total_net_incomes
+    id2 = data2.total_net_incomes
     name1 = data1.name_activity
     name2 = data2.name_activity
     return compare(id1, id2, name1, name2)

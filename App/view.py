@@ -318,12 +318,39 @@ def print_req_5(control, code_year):
         print(lists)
 
 
-def print_req_6(control):
+def print_req_6(control, code_year):
     """
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    pass
+
+    sector, max_subsector, min_subsector = controller.req_6(control, code_year)
+
+    columns_sector = ["Código sector económico",
+                      "Nombre sector económico",
+                      "Total ingresos netos",
+                      "Total costos y gastos",
+                      "Total saldo a pagar",
+                      "Total saldo a favor",
+                      "Subsector económico que menos aportó",
+                      "Subsector económico que más aportó"]
+
+    columns_subsector = ["Código subsector económico",
+                         "Nombre subsector económico",
+                         "Total ingresos netos",
+                         "Total costos y gastos",
+                         "Total saldo a pagar",
+                         "Total saldo a favor",
+                         "Actividad económica que menos aportó",
+                         "Actividad económica que más aportó"]
+
+    table_sector = sector.create_table(columns_sector)
+    table_max_subsector = max_subsector.create_table(columns_subsector, [15,15,15,15,15,15])
+    table_min_subsector = min_subsector.create_table(columns_subsector, [15,15,15,15,15,15])
+
+    print(table_sector)
+    print(table_max_subsector)
+    print(table_min_subsector)
 
 
 def print_req_7(control):
@@ -395,7 +422,8 @@ if __name__ == "__main__":
                 print_req_5(control, code_year)
 
             elif int(inputs) == 7:
-                print_req_6(control)
+                code_year = int(input("Ingrese el año a buscar: "))
+                print_req_6(control, code_year)
 
             elif int(inputs) == 8:
                 print_req_7(control)

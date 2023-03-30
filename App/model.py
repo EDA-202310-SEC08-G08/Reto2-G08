@@ -111,13 +111,13 @@ class EconomicActivity():
         self.tax_discounts = int(data["Descuentos tributarios"])
         self.dict_data["Descuentos tributarios"] = self.tax_discounts
 
-    def create_table(self, columns):
+    def create_table(self, columns, maxwidht=20):
         tabulate_list = []
         tabulate_list.append(self.make_list(columns))
-        print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "grid", maxheadercolwidths=20, maxcolwidths=20))
+        print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "grid", maxheadercolwidths=maxwidht, maxcolwidths=maxwidht))
         return tabulate_list
 
-    def create_vertical_table(self, columns):
+    def create_vertical_table(self, columns, maxwidth=40):
 
         tabular_list = []
         tabular_list.append(self.make_list(columns))
@@ -129,7 +129,7 @@ class EconomicActivity():
             row = [column, tabular_list[0][columns.index(column)]]
             tabulate_list.append(row)
 
-        visual_table = tabulate(tabular_data = tabulate_list, headers = ["Attribute", "Value"], tablefmt = "fancy_grid", maxheadercolwidths=30, maxcolwidths=30)
+        visual_table = tabulate(tabular_data = tabulate_list, headers = ["Attribute", "Value"], tablefmt = "grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
         return visual_table
 
     def make_list(self, columns):
@@ -193,7 +193,7 @@ class Sector(Year):
         self.max_total_favorable_balance = None #NOTE: EconomicActivity
         self.min_total_favorable_balance = None #NOTE: EconomicActivity
         #NOTE: Atributos para el requerimiento 4, 5, 6
-        self.data_dict = {}
+        self.dict_data = {}
         self.total_all_net_incomes = 0
         self.total_all_costs_and_expenses = 0
         self.total_all_payable_balance = 0
@@ -207,22 +207,22 @@ class Sector(Year):
     def give_attributes(self, data : EconomicActivity):
         self.name_sector = data.name_sector
         self.code_sector = data.code_sector
-        self.data_dict["Nombre sector económico"] = self.name_sector
-        self.data_dict["Código sector económico"] = self.code_sector
+        self.dict_data["Nombre sector económico"] = self.name_sector
+        self.dict_data["Código sector económico"] = self.code_sector
 
     def actualize(self, data : EconomicActivity):
         self.sum_values(data)
         self.actualize_dict()
 
     def actualize_dict(self):
-        self.data_dict["Total ingresos netos"] = self.total_all_net_incomes
-        self.data_dict["Total costos y gastos"] = self.total_all_costs_and_expenses
-        self.data_dict["Total saldo a pagar"] = self.total_all_payable_balance
-        self.data_dict["Total saldo a favor"] = self.total_all_favorable_balance
+        self.dict_data["Total ingresos netos"] = self.total_all_net_incomes
+        self.dict_data["Total costos y gastos"] = self.total_all_costs_and_expenses
+        self.dict_data["Total saldo a pagar"] = self.total_all_payable_balance
+        self.dict_data["Total saldo a favor"] = self.total_all_favorable_balance
 
         if self.less_apport_subsector is not None and self.more_apport_subsector is not None:
-            self.data_dict["Subsector con menor aporte"] = self.less_apport_subsector.code_subsector
-            self.data_dict["Subsector con mayor aporte"] = self.more_apport_subsector.code_subsector
+            self.dict_data["Subsector económico que más aportó"] = self.less_apport_subsector.code_subsector
+            self.dict_data["Subsector económico que menos aportó"] = self.more_apport_subsector.code_subsector
 
     def sum_values(self, data : EconomicActivity):
         """
@@ -270,11 +270,11 @@ class Sector(Year):
         self.actualize_dict()
         return max, min
 
-    def create_table(self, columns: list):
+    def create_table(self, columns: list, maxwidht = 20):
         tabular = []
         tabular.append(self.create_list(columns))
         columns = self._reformatColumns(columns)
-        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=20, maxheadercolwidths=20)
+        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=maxwidht, maxheadercolwidths=maxwidht)
 
     def _reformatColumns(self, columns: list):
 
@@ -373,6 +373,16 @@ class Subsector(Sector):
         self.dict_data["Total saldo a favor"] = self.total_all_favorable_balance
 
         if self.min_activity is not None and self.max_activity is not None:
+
+            columns = ["Código actividad económica",
+                       "Nombre actividad económica",
+                       "Total ingresos netos",
+                       "Total costos y gastos",
+                       "Total saldo a pagar",
+                       "Total saldo a favor"]
+            self.min_activity = self.min_activity.create_vertical_table(columns)
+            self.max_activity = self.max_activity.create_vertical_table(columns)
+
             self.dict_data["Actividad económica que menos aportó"] = self.min_activity
             self.dict_data["Actividad económica que más aportó"] = self.max_activity
 
@@ -390,7 +400,9 @@ class Subsector(Sector):
         elif attribute == "tax_discounts":
             self.tax_discounts = subsector_all_data
         elif attribute == "total_net_incomes":
-            self.total_net_incomes = subsector_all_data
+            self.min_activity = subsector_all_data.lastElement()
+            self.max_activity = subsector_all_data.firstElement()
+            self.actualize_dict()
 
     def is_list_created(func: FunctionType):
         def decorator(self, *args, **kwargs):
@@ -413,7 +425,7 @@ class Subsector(Sector):
         elif attribute == "tax_discounts":
             return self._create_table_min_max(self.tax_discounts, columns)
 
-    def _create_table_min_max(self, list: adt.List, columns: list):
+    def _create_table_min_max(self, list: adt.List, columns: list, maxwidth = 20):
         """
         Funcion encargada de crear las tablas de minimo y maximo de las actividades economicas
         """
@@ -426,7 +438,7 @@ class Subsector(Sector):
                 element_list = element.make_list(columns)
                 tabular.append(element_list)
 
-            table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=20, maxcolwidths=20)
+            table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
 
             return table
 
@@ -446,16 +458,16 @@ class Subsector(Sector):
                 element_list = element.make_list(columns)
                 tabular_max.append(element_list)
 
-            table_min = tabulate(tabular_min, headers=columns, tablefmt="grid", maxheadercolwidths=20, maxcolwidths=20)
-            table_max = tabulate(tabular_max, headers=columns, tablefmt="grid", maxheadercolwidths=20, maxcolwidths=20)
+            table_min = tabulate(tabular_min, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
+            table_max = tabulate(tabular_max, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
 
             return table_min, table_max
 
-    def create_table(self, columns: list):
+    def create_table(self, columns: list, maxwidth = 20):
         tabular = []
         tabular.append(self.create_list(columns))
         columns = self._reformatColumns(columns)
-        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=20, maxheadercolwidths=20)
+        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=maxwidth, maxheadercolwidths=maxwidth)
 
     def _reformatColumns(self, columns: list):
 

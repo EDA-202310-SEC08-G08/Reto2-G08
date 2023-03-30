@@ -277,12 +277,45 @@ def print_req_4(control, code_year):
         print(lists)
 
 
-def print_req_5(control):
+def print_req_5(control, code_year):
     """
         Función que imprime la solución del Requerimiento 5 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 5
-    pass
+    subsector = controller.req_5(control, code_year)
+
+    columns_sector = ["Código sector económico",
+                        "Nombre sector económico",
+                        "Código subsector económico",
+                        "Nombre subsector económico",
+                        "Total de descuentos tributarios",
+                        "Total ingresos netos",
+                        "Total costos y gastos",
+                        "Total saldo a pagar",
+                        "Total saldo a favor"]
+
+    columns_activity = ["Código actividad económica",
+                        "Nombre actividad económica",
+                        "Descuentos tributarios",
+                        "Total ingresos netos",
+                        "Total costos y gastos",
+                        "Total saldo a pagar",
+                        "Total saldo a favor"]
+
+    subsector_table = subsector.create_table(columns_sector)
+    lists = subsector.create_tables_min_max("tax_discounts", columns_activity)
+
+    if type(lists) == tuple:
+        min_table = lists[0]
+        max_table = lists[1]
+
+        print(subsector_table)
+        print(min_table)
+        print(max_table)
+
+    else:
+        print(subsector_table)
+        print(lists)
 
 
 def print_req_6(control):
@@ -357,7 +390,9 @@ if __name__ == "__main__":
                 print_req_4(control, code_year)
 
             elif int(inputs) == 6:
-                print_req_5(control)
+                code_year = int(input("Ingrese el año a buscar: "))
+
+                print_req_5(control, code_year)
 
             elif int(inputs) == 7:
                 print_req_6(control)

@@ -358,7 +358,7 @@ class Subsector(Sector):
         else:
 
             min_list = list.subList(1, 3)
-            max_list = list.subList(list.size() - 2, list.size())
+            max_list = list.subList(list.size() - 2, 3)
             tabular_min = []
             tabular_max = []
 
@@ -636,12 +636,19 @@ def req_4(data_structs, code_year):
 
     return max_subsector
 
-def req_5(data_structs):
+def req_5(data_structs, code_year):
     """
     Función que soluciona el requerimiento 5
     """
     # TODO: Realizar el requerimiento 5
-    pass
+    map_year = data_structs.map_by_year
+    year_data = me.getValue(map_year.get(code_year))
+
+    max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq5)
+
+    max_subsector.sort_data_subsector(compare_by_tax_discounts, "tax_discounts")
+
+    return max_subsector
 
 
 def req_6(data_structs):
@@ -736,6 +743,20 @@ def compare_by_rq4(data1: Subsector, data2: Subsector):
     else:
         return False
 
+def compare_by_rq5(data1: Subsector, data2: Subsector):
+    id1 = data1.total_all_tax_discounts
+    id2 = data2.total_all_tax_discounts
+
+    if id1 == id2:
+        if data1.name_subsector > data2.name_subsector:
+           return True
+        else:
+           return False
+    elif id1 > id2:
+        return True
+    else:
+        return False
+
 def compare_by_payroll_expenses(data1: EconomicActivity, data2: EconomicActivity):
     id1 = data1.costs_and_payroll_expenses
     id2 = data2.costs_and_payroll_expenses
@@ -754,6 +775,21 @@ def compare_by_retencions(data1 : EconomicActivity, data2: EconomicActivity):
 
     id1 = data1.total_retencions
     id2 = data2.total_retencions
+
+    if id1 == id2:
+        if data1.name_activity > data2.name_activity:
+            return True
+        else:
+            return False
+    elif id1 > id2:
+        return True
+    else:
+        return False
+
+def compare_by_tax_discounts(data1 : EconomicActivity, data2: EconomicActivity):
+
+    id1 = data1.tax_discounts
+    id2 = data2.tax_discounts
 
     if id1 == id2:
         if data1.name_activity > data2.name_activity:

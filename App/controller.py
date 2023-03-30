@@ -199,12 +199,13 @@ def req_4(control, code_year):
     return model.req_4(control["model"], code_year)
 
 
-def req_5(control):
+def req_5(control, code_year):
     """
     Retorna el resultado del requerimiento 5
     """
     # TODO: Modificar el requerimiento 5
-    pass
+
+    return model.req_5(control["model"], code_year)
 
 def req_6(control):
     """

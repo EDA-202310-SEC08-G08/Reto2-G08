@@ -635,6 +635,8 @@ def req_3(data_structs, code_year):
 
     return min_subsector
 
+
+#DEPRECATED Da lo mismos resultados que el requerimiento 3 original
 def other_req_3(data_structs, code_year):
     """
     Función que soluciona el requerimiento 3

@@ -608,7 +608,7 @@ def req_3(data_structs, code_year):
     """
     Función que soluciona el requerimiento 3
     """
-    # TODO: Realizar el requerimiento 3
+    # CHECK: Realizar el requerimiento 3
 
     map_year = data_structs.map_by_year
 
@@ -621,13 +621,20 @@ def req_3(data_structs, code_year):
     return min_subsector
 
 
-def req_4(data_structs):
+def req_4(data_structs, code_year):
     """
     Función que soluciona el requerimiento 4
     """
     # TODO: Realizar el requerimiento 4
-    pass
 
+    map_year = data_structs.map_by_year
+    year_data = me.getValue(map_year.get(code_year))
+
+    max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq4)
+
+    max_subsector.sort_data_subsector(compare_by_payroll_expenses, "total_costs_and_payroll_expenses")
+
+    return max_subsector
 
 def req_5(data_structs):
     """
@@ -707,6 +714,34 @@ def compare_by_rq3(data1 : Subsector, data2: Subsector):
 
     if id1 == id2:
         if data1.name_subsector > data2.name_subsector:
+           return True
+        else:
+           return False
+    elif id1 > id2:
+        return True
+    else:
+        return False
+
+def compare_by_rq4(data1: Subsector, data2: Subsector):
+    id1 = data1.total_all_costs_and_payroll_expenses
+    id2 = data2.total_all_costs_and_payroll_expenses
+
+    if id1 == id2:
+        if data1.name_subsector > data2.name_subsector:
+           return True
+        else:
+           return False
+    elif id1 > id2:
+        return True
+    else:
+        return False
+
+def compare_by_payroll_expenses(data1: EconomicActivity, data2: EconomicActivity):
+    id1 = data1.costs_and_payroll_expenses
+    id2 = data2.costs_and_payroll_expenses
+
+    if id1 == id2:
+        if data1.name_activity > data2.name_activity:
            return True
         else:
            return False

@@ -198,20 +198,28 @@ def print_data(control, id):
     #TODO: Realizar la función para imprimir un elemento
     pass
 
-def print_req_1(control):
+def print_req_1(control, code_year, code_sector):
     """
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
-    pass
 
 
-def print_req_2(control):
+    activity =  controller.req_1(control, code_year, code_sector)
+
+    return activity.create_table(["Código actividad económica", "Nombre actividad económica","Código subsector económico", "Nombre subsector económico",
+                                  "Total ingresos netos", "Total costos y gastos", "Total saldo a pagar", "Total saldo a favor"	])
+
+
+def print_req_2(control, code_year, code_sector):
     """
         Función que imprime la solución del Requerimiento 2 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 2
-    pass
+    activity =  controller.req_1(control, code_year, code_sector)
+
+    return activity.create_table(["Código actividad económica", "Nombre actividad económica","Código subsector económico", "Nombre subsector económico",
+                                  "Total ingresos netos", "Total costos y gastos","Total saldo a pagar", "Total saldo a favor"])
 
 
 def print_req_3(control):
@@ -325,10 +333,15 @@ if __name__ == "__main__":
                 msg2 = f"Se cargaron {all_size} datos de los archivos"
                 
             elif int(inputs) == 2:
-                print_req_1(control)
+                code_year = int(input("Ingrese el año a buscar: "))
+                code_sector = input("Ingrese el código del sector a buscar: ")
+
+                print_req_1(control, code_year, code_sector)
 
             elif int(inputs) == 3:
-                print_req_2(control)
+                code_year = int(input("Ingrese el año a buscar: "))
+                code_sector = input("Ingrese el código del sector a buscar: ")
+                print_req_2(control, code_year, code_sector)
 
             elif int(inputs) == 4:
                 print_req_3(control)

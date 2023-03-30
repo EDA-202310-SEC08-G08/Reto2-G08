@@ -28,6 +28,7 @@
 import config as cf
 import main_adts as adt
 import datetime
+from tabulate import tabulate
 from types import FunctionType
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack as st
@@ -78,6 +79,28 @@ class Sector(Year):
         self.max_total_favorable_balance = None #NOTE: EconomicActivity
         self.min_total_favorable_balance = None #NOTE: EconomicActivity
 
+    def obtain_max_and_min_economic_activity(self, sort_criteria, attribute):
+        """
+        Función encargada de obtener el máximo y el mínimo de algun parametro de alguna actividad economica
+        """
+
+        sector_all_data = self.all_data
+
+        sector_all_data.sort(sort_criteria)
+
+        max = sector_all_data.getElement(1)
+
+        min = sector_all_data.getElement(sector_all_data.size())
+
+        if attribute == "total_payable_balance":
+            self.max_total_payable_balance = max
+            self.min_total_payable_balance = min
+        elif attribute == "total_favorable_balance":
+            self.max_total_favorable_balance = max
+            self.min_total_favorable_balance = min
+
+        return max, min
+
 
 
 class Subsector(Sector):
@@ -126,6 +149,7 @@ class Subsector(Sector):
 
 
 
+
 class EconomicActivity():
 
     def __init__(self, data: dict):
@@ -149,22 +173,73 @@ class EconomicActivity():
         costs_and_payroll_expenses (int): The costs and payroll expenses.
         tax_discounts (int): The tax discounts.
         """
-
+        self.dict_data = {}
         self.year = int(data["Año"])
+        self.dict_data["Año"] = self.year
         self.code_activity = (data["Código actividad económica"])
+        self.dict_data["Código actividad económica"] = self.code_activity
         self.name_activity = data["Nombre actividad económica"]
+        self.dict_data["Nombre actividad económica"] = self.name_activity
         self.code_subsector = (data["Código subsector económico"])
+        self.dict_data["Código subsector económico"] = self.code_subsector
         self.name_subsector = data["Nombre subsector económico"]
+        self.dict_data["Nombre subsector económico"] = self.name_subsector
         self.code_sector = (data["Código sector económico"])
+        self.dict_data["Código sector económico"] = self.code_sector
         self.name_sector = data["Nombre sector económico"]
+        self.dict_data["Nombre sector económico"] = self.name_sector
         self.total_net_incomes = int(data["Total ingresos netos"])
+        self.dict_data["Total ingresos netos"] = self.total_net_incomes
         self.total_favorable_balance = int(data["Total saldo a favor"])
+        self.dict_data["Total saldo a favor"] = self.total_favorable_balance
         self.total_payable_balance = int(data["Total saldo a pagar"])
+        self.dict_data["Total saldo a pagar"] = self.total_payable_balance
         self.total_retencions = int(data["Total retenciones"])
+        self.dict_data["Total retenciones"] = self.total_retencions
         self.total_cost_and_expenses = int(data["Total costos y gastos"])
+        self.dict_data["Total costos y gastos"] = self.total_cost_and_expenses
         self.costs = int(data["Costos"])
+        self.dict_data["Costos"] = self.costs
         self.costs_and_payroll_expenses = int(data["Costos y gastos nómina"])
+        self.dict_data["Costos y gastos nómina"] = self.costs_and_payroll_expenses
         self.tax_discounts = int(data["Descuentos tributarios"])
+        self.dict_data["Descuentos tributarios"] = self.tax_discounts
+
+    def create_table(self, columns):
+
+        tabulate_list = []
+
+        tabulate_list.append(self._create_tabulate_list(columns))
+
+        print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "fancy_grid"))
+
+        return tabulate_list
+
+
+    def _create_tabulate_list(self, columns):
+
+        tabulate_list = []
+
+        for data in columns:
+
+            attribute = self._match_columns(data)
+
+            tabulate_list.append(attribute)
+
+        return tabulate_list
+
+
+    def _match_columns(self, column):
+
+        attribute = self.dict_data[column]
+
+        return attribute
+
+
+
+
+
+
 
 # Construccion de modelos
 
@@ -322,20 +397,42 @@ def data_size(data_structs):
     pass
 
 
-def req_1(data_structs):
+def req_1(data_structs: DataStructs, code_year: int, code_sector: str):
     """
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    pass
+
+    map_year = data_structs.map_by_year
+
+    year_data = me.getValue(map_year.get(code_year))
+
+    map_sector = year_data.map_by_sector
+
+    sector_data = me.getValue(map_sector.get(code_sector))
+
+    max, min = sector_data.obtain_max_and_min_economic_activity(compare_by_rq1, "total_payable_balance")
+
+    return max
 
 
-def req_2(data_structs):
+def req_2(data_structs: DataStructs, code_year: int, code_sector: str):
     """
-    Función que soluciona el requerimiento 2
+    Función que soluciona el requerimiento 1
     """
-    # TODO: Realizar el requerimiento 2
-    pass
+    # TODO: Realizar el requerimiento 1
+
+    map_year = data_structs.map_by_year
+
+    year_data = me.getValue(map_year.get(code_year))
+
+    map_sector = year_data.map_by_sector
+
+    sector_data = me.getValue(map_sector.get(code_sector))
+
+    max, min = sector_data.obtain_max_and_min_economic_activity(compare_by_rq2, "total_favorable_balance")
+
+    return max
 
 
 def req_3(data_structs):
@@ -388,12 +485,12 @@ def req_8(data_structs):
 
 #NOTE Funciones utilizadas para comparar elementos dentro de una lista
 
-def compare_by_id(data_1, data_2):
+def compare_by_id(data_1 : EconomicActivity, data_2: EconomicActivity):
     """
     Función encargada de comparar dos datos
     """
-    id_1 = data_1["id"]
-    id_2 = data_2["id"]
+    id_1 = data_1.id
+    id_2 = data_2.id
 
     if id_1 > id_2:
         return 1
@@ -401,6 +498,34 @@ def compare_by_id(data_1, data_2):
         return -1
     else:
         return 0
+
+def compare_by_rq1(data_1 : EconomicActivity, data_2: EconomicActivity):
+    """
+    Función encargada de comparar dos datos
+    """
+
+    id_1 = data_1.total_payable_balance
+    id_2 = data_2.total_payable_balance
+
+
+    if id_1 > id_2:
+        return True
+    else:
+        return False
+
+def compare_by_rq2(data_1 : EconomicActivity, data_2: EconomicActivity):
+    """
+    Función encargada de comparar dos datos
+    """
+
+
+    id_1 = data_1.total_favorable_balance
+    id_2 = data_2.total_favorable_balance
+
+    if id_1 > id_2:
+        return True
+    else:
+        return False
 
 #NOTE Funciones utilizadas para comparar las llaves dentro de un mapa
 

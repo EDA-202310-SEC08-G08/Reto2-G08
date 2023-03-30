@@ -165,20 +165,21 @@ def get_data(control, id):
     pass
 
 
-def req_1(control):
+def req_1(control, code_year, code_sector):
     """
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
-    pass
+
+    return model.req_1(control["model"], code_year, code_sector)
 
 
-def req_2(control):
+def req_2(control, code_year, code_sector):
     """
     Retorna el resultado del requerimiento 2
     """
     # TODO: Modificar el requerimiento 2
-    pass
+    return model.req_2(control["model"], code_year, code_sector)
 
 
 def req_3(control):

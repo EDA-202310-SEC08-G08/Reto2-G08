@@ -182,12 +182,12 @@ def req_2(control, code_year, code_sector):
     return model.req_2(control["model"], code_year, code_sector)
 
 
-def req_3(control):
+def req_3(control, code_year):
     """
     Retorna el resultado del requerimiento 3
     """
     # TODO: Modificar el requerimiento 3
-    pass
+    return model.req_3(control["model"], code_year)
 
 
 def req_4(control):

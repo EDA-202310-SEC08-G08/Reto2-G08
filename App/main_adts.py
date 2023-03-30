@@ -616,8 +616,12 @@ class HashMap():
 
     def keySet(self):
 
-        return mp.keySet(self.map)
+        keySet = mp.keySet(self.map)
+
+        return List(adt=keySet)
 
     def valueSet(self):
 
-        return mp.valueSet(self.map)        
+        valueSet = mp.valueSet(self.map)
+
+        return List(adt=valueSet)

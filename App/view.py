@@ -222,12 +222,12 @@ def print_req_2(control, code_year, code_sector):
                                   "Total ingresos netos", "Total costos y gastos","Total saldo a pagar", "Total saldo a favor"])
 
 
-def print_req_3(control):
+def print_req_3(control, code_year):
     """
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    pass
+    return controller.req_3(control, code_year)
 
 
 def print_req_4(control):
@@ -331,7 +331,7 @@ if __name__ == "__main__":
                 all_size = control["model"].all_data.size()
                 msg1 = f"Carga de datos con archivo {suffix}"
                 msg2 = f"Se cargaron {all_size} datos de los archivos"
-                
+
             elif int(inputs) == 2:
                 code_year = int(input("Ingrese el año a buscar: "))
                 code_sector = input("Ingrese el código del sector a buscar: ")
@@ -344,7 +344,10 @@ if __name__ == "__main__":
                 print_req_2(control, code_year, code_sector)
 
             elif int(inputs) == 4:
-                print_req_3(control)
+                code_year = int(input("Ingrese el año a buscar: "))
+
+                print_req_3(control, code_year)
+
 
             elif int(inputs) == 5:
                 print_req_4(control)

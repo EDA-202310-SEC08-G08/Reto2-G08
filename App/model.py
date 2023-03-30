@@ -56,100 +56,6 @@ class DataStructs:
         self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
         self.map_by_year = adt.HashMap(numelements=10, maptype="PROBING", loadfactor=0.5)
 
-
-class Year(DataStructs):
-
-    def __init__(self):
-
-        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
-        self.map_by_sector = adt.HashMap(numelements=15, maptype="PROBING", loadfactor=0.5)
-
-
-class Sector(Year):
-
-    def __init__(self):
-
-        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
-        self.map_by_subsector = adt.HashMap(numelements=21, maptype="PROBING", loadfactor=0.5)
-
-        #NOTE: Atributos para el requerimiento 1
-        self.max_total_payable_balance = None #NOTE: EconomicActivity
-        self.min_total_payable_balance = None #NOTE: EconomicActivity
-        #NOTE: Atributos para el requerimiento 2
-        self.max_total_favorable_balance = None #NOTE: EconomicActivity
-        self.min_total_favorable_balance = None #NOTE: EconomicActivity
-
-    def obtain_max_and_min_economic_activity(self, sort_criteria, attribute):
-        """
-        Función encargada de obtener el máximo y el mínimo de algun parametro de alguna actividad economica
-        """
-
-        sector_all_data = self.all_data
-
-        sector_all_data.sort(sort_criteria)
-
-        max = sector_all_data.getElement(1)
-
-        min = sector_all_data.getElement(sector_all_data.size())
-
-        if attribute == "total_payable_balance":
-            self.max_total_payable_balance = max
-            self.min_total_payable_balance = min
-        elif attribute == "total_favorable_balance":
-            self.max_total_favorable_balance = max
-            self.min_total_favorable_balance = min
-
-        return max, min
-
-
-
-class Subsector(Sector):
-
-    def __init__(self):
-
-        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
-        #NOTE: Atributos para el requerimiento 3
-        self.min_total_retencions = None #NOTE: EconomicActivity
-        self.max_total_retencions = None #NOTE: EconomicActivity
-        #NOTE: Atributos para el requerimiento 4
-        self.min_total_costs_and_payroll_expenses = None #NOTE: EconomicActivity
-        self.max_total_costs_and_payroll_expenses = None #NOTE: EconomicActivity
-        #NOTE: Atributos para el requerimiento 5
-        self.min_tax_discounts = None #NOTE: EconomicActivity
-        self.max_tax_discounts = None #NOTE: EconomicActivity
-
-        #HACK Atributos para el requerimiento 6
-        self.total_net_incomes = 0
-
-    def calculate_max_and_min(self, sort_criteria: FunctionType, attribute: str):
-        """
-        Función encargada de calcular el máximo y el mínimo de total retenciones
-        """
-
-        subsector_all_data = self.all_data
-
-        subsector_all_data.sort(sort_criteria)
-
-        max = subsector_all_data.get(1)
-
-        min = subsector_all_data.get(subsector_all_data.size())
-
-        if attribute == "total_retencions":
-            self.min_total_retencions = min
-            self.max_total_retencions = max
-        elif attribute == "total_costs_and_payroll_expenses":
-            self.min_total_costs_and_payroll_expenses = min
-            self.max_total_costs_and_payroll_expenses = max
-        elif attribute == "tax_discounts":
-            self.min_tax_discounts = min
-            self.max_tax_discounts = max
-
-        return max, min
-
-
-
-
-
 class EconomicActivity():
 
     def __init__(self, data: dict):
@@ -234,12 +140,183 @@ class EconomicActivity():
         attribute = self.dict_data[column]
 
         return attribute
+class Year(DataStructs):
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        self.map_by_sector = adt.HashMap(numelements=15, maptype="PROBING", loadfactor=0.5)
+        self.map_by_subsectors = adt.HashMap(numelements=21, maptype="PROBING", loadfactor=0.5)
+        self.subsector_max = None
+        self.subsector_min = None
+
+    def search_min_max_subsector(self, sort_criteria):
+
+        all_sectors = self.map_by_sector.valueSet()
+
+        for sector in all_sectors:
+
+            max, min = sector.obtain_max_and_min_subsector(sort_criteria)
+
+            if self.subsector_max is None:
+                self.subsector_max = max
+            elif sort_criteria(max, self.subsector_max):
+                self.subsector_max = max
+
+            if self.subsector_min is None:
+                self.subsector_min = min
+            elif sort_criteria(min, self.subsector_min) == False:
+                self.subsector_min = min
+
+        return self.subsector_max, self.subsector_min
+
+class Sector(Year):
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        self.map_by_subsector = adt.HashMap(numelements=21, maptype="PROBING", loadfactor=0.5)
+
+        #NOTE: Atributos para el requerimiento 1
+        self.max_total_payable_balance = None #NOTE: EconomicActivity
+        self.min_total_payable_balance = None #NOTE: EconomicActivity
+        #NOTE: Atributos para el requerimiento 2
+        self.max_total_favorable_balance = None #NOTE: EconomicActivity
+        self.min_total_favorable_balance = None #NOTE: EconomicActivity
 
 
+        #NOTE: Atributos para el requerimiento 3, 4, 5
+        self.total_all_net_incomes = 0
+        self.total_all_costs_and_expenses = 0
+        self.total_all_payable_balance = 0
+        self.total_all_favorable_balance = 0
+        self.less_apport_subsector = None #NOTE: Subsector
+        self.more_apport_subsector = None #NOTE: Subsector
+
+        #OPTIMIZE: Atributos propios del sector
+        self.name_sector = None
+        self.code_sector = None
+
+    def give_attributes(self, data : EconomicActivity):
+
+        self.name_sector = data.name_sector
+        self.code_sector = data.code_sector
+
+    def sum_values(self, data : EconomicActivity):
+
+        self.total_all_net_incomes += data.total_net_incomes
+        self.total_all_costs_and_expenses += data.total_cost_and_expenses
+        self.total_all_payable_balance += data.total_payable_balance
+        self.total_all_favorable_balance += data.total_favorable_balance
 
 
+    def obtain_max_and_min_economic_activity(self, sort_criteria, attribute):
+        """
+        Función encargada de obtener el máximo y el mínimo de algun parametro de alguna actividad economica
+        """
+
+        sector_all_data = self.all_data
+
+        sector_all_data.sort(sort_criteria)
+
+        max = sector_all_data.firstElement()
+
+        min = sector_all_data.lastElement()
+
+        if attribute == "total_payable_balance":
+            self.max_total_payable_balance = max
+            self.min_total_payable_balance = min
+        elif attribute == "total_favorable_balance":
+            self.max_total_favorable_balance = max
+            self.min_total_favorable_balance = min
+
+        return max, min
+
+    def obtain_max_and_min_subsector(self, sort_criteria):
+
+        subsector_all_data = self.map_by_subsector.valueSet()
+
+        subsector_all_data.sort(sort_criteria)
+
+        max = subsector_all_data.firstElement()
+
+        min = subsector_all_data.lastElement()
+
+        self.less_apport_subsector = min
+
+        self.more_apport_subsector = max
+
+        return max, min
+
+class Subsector(Sector):
+
+    def __init__(self):
+
+        self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        #NOTE: Atributos para el requerimiento 3
+        self.min_total_retencions = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+        self.max_total_retencions = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+        #NOTE: Atributos para el requerimiento 4
+        self.min_total_costs_and_payroll_expenses = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+        self.max_total_costs_and_payroll_expenses = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+        #NOTE: Atributos para el requerimiento 5
+        self.min_tax_discounts = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+        self.max_tax_discounts = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
 
 
+        self.total_all_retencions = 0
+        self.total_all_net_incomes = 0
+        self.total_all_costs_and_expenses = 0
+        self.total_all_payable_balance = 0
+        self.total_all_favorable_balance = 0
+
+        self.name_subsector = None
+        self.code_subsector = None
+
+    def give_attributes(self, data : EconomicActivity):
+
+        self.name_subsector = data.name_subsector
+        self.code_subsector = data.code_subsector
+
+    def sum_values(self, data: EconomicActivity):
+
+        self.total_all_retencions += data.total_retencions
+        self.total_all_net_incomes += data.total_net_incomes
+        self.total_all_costs_and_expenses += data.total_cost_and_expenses
+        self.total_all_payable_balance += data.total_payable_balance
+        self.total_all_favorable_balance += data.total_favorable_balance
+
+    def calculate_max_and_min(self, sort_criteria: FunctionType, attribute: str):
+        """
+        Función encargada de calcular las tres maximas y las tres minimas de algun parametro de alguna actividad economica
+        """
+
+        subsector_all_data = self.all_data
+
+        subsector_all_data.sort(sort_criteria)
+
+        if subsector_all_data.size() < 6:
+
+            max = subsector_all_data
+            min = subsector_all_data
+
+        else:
+
+            max = subsector_all_data.subList(1,3)
+
+            min = subsector_all_data.subList(subsector_all_data.size()-2, subsector_all_data.size())
+
+        if attribute == "total_retencions":
+            self.min_total_retencions = min
+            self.max_total_retencions = max
+        elif attribute == "total_costs_and_payroll_expenses":
+            self.min_total_costs_and_payroll_expenses = min
+            self.max_total_costs_and_payroll_expenses = max
+        elif attribute == "tax_discounts":
+            self.min_tax_discounts = min
+            self.max_tax_discounts = max
+
+        return max, min
 
 # Construccion de modelos
 
@@ -311,11 +388,15 @@ def add_register_by_sector(year : Year, data : EconomicActivity):
         entry = map_by_sector.get(sector)
         sector_data = me.getValue(entry)
         sector_data.all_data.addLast(data)
+        sector_data.sum_values(data)
+        sector_data.give_attributes(data)
         add_register_by_subsector(sector_data, data)
+
     else:
         entry = map_by_sector.get(sector)
         sector_data = me.getValue(entry)
         sector_data.all_data.addLast(data)
+        sector_data.sum_values(data)
         add_register_by_subsector(sector_data, data)
 
     return year
@@ -333,10 +414,13 @@ def add_register_by_subsector(sector : Sector, data : EconomicActivity):
         map_by_subsector.put(subsector, value)
         entry = map_by_subsector.get(subsector)
         subsector_data = me.getValue(entry)
+        subsector_data.sum_values(data)
+        subsector_data.give_attributes(data)
         subsector_data.all_data.addLast(data)
     else:
         entry = map_by_subsector.get(subsector)
         subsector_data = me.getValue(entry)
+        subsector_data.sum_values(data)
         subsector_data.all_data.addLast(data)
 
     return sector
@@ -347,19 +431,6 @@ def new_data(info):
     """
     Crea una nueva estructura para modelar los datos
     """
-    # try:
-    #     info["id"] = int(info["Año"] + info['Código actividad económica'])
-    # except:
-    #     i = 0
-    #     for char in info["Código actividad económica"]:
-    #         if char in [" ","/"]:
-    #             info["Código actividad económica"] = info["Código actividad económica"][0:i]
-    #             break
-    #         else:
-    #             i += 1
-    #     info["id"] = int(info["Año"] + info["Código actividad económica"])
-
-    # return info
 
     data = EconomicActivity(info)
 
@@ -401,9 +472,11 @@ def req_1(data_structs: DataStructs, code_year: int, code_sector: str):
     """
     Función que soluciona el requerimiento 1
     """
-    # TODO: Realizar el requerimiento 1
+    # CHECK: Realizar el requerimiento 1
 
     map_year = data_structs.map_by_year
+
+    # map_year.get(code_year) -> entry = {"key": code_year, "value": year_data} year_data = Year()
 
     year_data = me.getValue(map_year.get(code_year))
 
@@ -420,7 +493,7 @@ def req_2(data_structs: DataStructs, code_year: int, code_sector: str):
     """
     Función que soluciona el requerimiento 1
     """
-    # TODO: Realizar el requerimiento 1
+    # CHECK: Realizar el requerimiento 1
 
     map_year = data_structs.map_by_year
 
@@ -435,12 +508,21 @@ def req_2(data_structs: DataStructs, code_year: int, code_sector: str):
     return max
 
 
-def req_3(data_structs):
+def req_3(data_structs, code_year):
     """
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-    pass
+
+    map_year = data_structs.map_by_year
+
+    year_data = me.getValue(map_year.get(code_year))
+
+    max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq3)
+
+    max_list, min_list = min_subsector.calculate_max_and_min(compare_by_retencions, "total_retencions")
+
+    return min_subsector, max_list, min_list
 
 
 def req_4(data_structs):
@@ -527,6 +609,39 @@ def compare_by_rq2(data_1 : EconomicActivity, data_2: EconomicActivity):
     else:
         return False
 
+def compare_by_rq3(data1 : Subsector, data2: Subsector):
+
+    id1 = data1.total_all_retencions
+    id2 = data2.total_all_retencions
+
+
+
+    if id1 == id2:
+        if data1.name_subsector > data2.name_subsector:
+           return True
+        else:
+           return False
+    elif id1 > id2:
+        return True
+    else:
+        return False
+
+def compare_by_retencions(data1 : EconomicActivity, data2: EconomicActivity):
+
+    id1 = data1.total_retencions
+    id2 = data2.total_retencions
+
+    if id1 == id2:
+        if data1.name_activity > data2.name_activity:
+            return True
+        else:
+            return False
+    elif id1 > id2:
+        return True
+    else:
+        return False
+
+
 #NOTE Funciones utilizadas para comparar las llaves dentro de un mapa
 
 
@@ -561,25 +676,5 @@ def sort_criteria(data_1, data_2):
     pass
 
 
-def sc_by_element(data_1, data_2):
-    """
-    Función encargada de comparar dos datos
-    """
-    if data_1 > data_2:
-        return False
-    else:
-        return True
-
-
-
-def sort(lst, sort_criteria):
-    """
-    Función encargada de ordenar la lista con los datos
-    """
-    #TODO: Crear función de ordenamiento
-
-    ordered_list = merg.sort(lst, sort_criteria)
-
-    return ordered_list
 
 

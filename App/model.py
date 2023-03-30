@@ -114,8 +114,23 @@ class EconomicActivity():
     def create_table(self, columns):
         tabulate_list = []
         tabulate_list.append(self.make_list(columns))
-        print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "fancy_grid", maxheadercolwidths=20, maxcolwidths=20))
+        print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "grid", maxheadercolwidths=20, maxcolwidths=20))
         return tabulate_list
+
+    def create_vertical_table(self, columns):
+
+        tabular_list = []
+        tabular_list.append(self.make_list(columns))
+
+        tabulate_list = []
+
+        for column in columns:
+
+            row = [column, tabular_list[0][columns.index(column)]]
+            tabulate_list.append(row)
+
+        visual_table = tabulate(tabular_data = tabulate_list, headers = ["Attribute", "Value"], tablefmt = "fancy_grid", maxheadercolwidths=30, maxcolwidths=30)
+        return visual_table
 
     def make_list(self, columns):
         tabulate_list = []
@@ -150,6 +165,10 @@ class Year(DataStructs):
             elif sort_criteria(min, self.subsector_min) == False:
                 self.subsector_min = min
         return self.subsector_max, self.subsector_min
+
+    def search_min_max_sector(self, sort_criteria):
+        all_sectors = self.map_by_sector.valueSet()
+
 
 class Sector(Year):
 
@@ -190,8 +209,10 @@ class Sector(Year):
         self.data_dict["Total costos y gastos"] = self.total_all_costs_and_expenses
         self.data_dict["Total saldo a pagar"] = self.total_all_payable_balance
         self.data_dict["Total saldo a favor"] = self.total_all_favorable_balance
-        self.data_dict["Subsector con menor aporte"] = self.less_apport_subsector
-        self.data_dict["Subsector con mayor aporte"] = self.more_apport_subsector
+
+        if self.less_apport_subsector is not None and self.more_apport_subsector is not None:
+            self.data_dict["Subsector con menor aporte"] = self.less_apport_subsector.code_subsector
+            self.data_dict["Subsector con mayor aporte"] = self.more_apport_subsector.code_subsector
 
     def sum_values(self, data : EconomicActivity):
         """
@@ -236,7 +257,41 @@ class Sector(Year):
         min = subsector_all_data.lastElement()
         self.less_apport_subsector = min
         self.more_apport_subsector = max
+        self.actualize_dict()
         return max, min
+
+    def create_table(self, columns: list):
+        tabular = []
+        tabular.append(self.create_list(columns))
+        columns = self._reformatColumns(columns)
+        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=20, maxheadercolwidths=20)
+
+    def _reformatColumns(self, columns: list):
+
+        new_columns = []
+
+        for data in columns:
+
+            if data.startswith("Total"):
+
+                data = f"{data} del sector económico"
+                new_columns.append(data)
+            else:
+                new_columns.append(data)
+
+        return new_columns
+
+    def create_list(self, columns: list):
+
+        tabular = []
+
+        for data in columns:
+
+            element_list = self._match_columns(data)
+            tabular.append(element_list)
+
+        return tabular
+
 
     def _match_columns(self, column):
         attribute = self.dict_data[column]
@@ -254,6 +309,10 @@ class Subsector(Sector):
         self.total_costs_and_payroll_expenses = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
         #NOTE: Atributos para el requerimiento 5
         self.tax_discounts = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+        #NOTE: Atributos para el requerimiento 6
+        self.total_net_incomes = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+        self.min_activity = None
+        self.max_activity = None
 
         self.dict_data = {}
         self.total_all_retencions = 0
@@ -303,6 +362,10 @@ class Subsector(Sector):
         self.dict_data["Total saldo a pagar"] = self.total_all_payable_balance
         self.dict_data["Total saldo a favor"] = self.total_all_favorable_balance
 
+        if self.min_activity is not None and self.max_activity is not None:
+            self.dict_data["Actividad económica que menos aportó"] = self.min_activity
+            self.dict_data["Actividad económica que más aportó"] = self.max_activity
+
     def sort_data_subsector(self, sort_criteria: FunctionType, attribute: str):
         """
         Funcion encargada de ordenar la lista de las actividades economicas
@@ -316,6 +379,8 @@ class Subsector(Sector):
             self.total_costs_and_payroll_expenses = subsector_all_data
         elif attribute == "tax_discounts":
             self.tax_discounts = subsector_all_data
+        elif attribute == "total_net_incomes":
+            self.total_net_incomes = subsector_all_data
 
     def is_list_created(func: FunctionType):
         def decorator(self, *args, **kwargs):
@@ -436,6 +501,13 @@ def add_data(data_structs : DataStructs, data):
     """
     #TODO: Crear la función para agregar elementos a una lista
     d = new_data(data)
+    columns_activity = ["Código actividad económica",
+                        "Nombre actividad económica",
+                        "Descuentos tributarios",
+                        "Total ingresos netos",
+                        "Total costos y gastos",
+                        "Total saldo a pagar",
+                        "Total saldo a favor"]
 
     data_structs.all_data.addLast(d)
 
@@ -683,24 +755,19 @@ def compare_by_id(data_1 : EconomicActivity, data_2: EconomicActivity):
     """
     id_1 = data_1.id
     id_2 = data_2.id
-    if id_1 > id_2:
-        return 1
-    elif id_1 < id_2:
-        return -1
-    else:
-        return 0
+    name1 = data_1.name_activity
+    name2 = data_2.name_activity
+    return compare(id_1, id_2, name1, name2)
 
 def compare_by_rq1(data_1 : EconomicActivity, data_2: EconomicActivity):
     """
     Función encargada de comparar dos datos
     """
-
     id_1 = data_1.total_payable_balance
     id_2 = data_2.total_payable_balance
-    if id_1 > id_2:
-        return True
-    else:
-        return False
+    name1 = data_1.name_activity
+    name2 = data_2.name_activity
+    return compare(id_1, id_2, name1, name2)
 
 def compare_by_rq2(data_1 : EconomicActivity, data_2: EconomicActivity):
     """
@@ -708,91 +775,69 @@ def compare_by_rq2(data_1 : EconomicActivity, data_2: EconomicActivity):
     """
     id_1 = data_1.total_favorable_balance
     id_2 = data_2.total_favorable_balance
-
-    if id_1 > id_2:
-        return True
-    else:
-        return False
+    name1 = data_1.name_activity
+    name2 = data_2.name_activity
+    return compare(id_1, id_2, name1, name2)
 
 def compare_by_rq3(data1 : Subsector, data2: Subsector):
-
     id1 = data1.total_all_retencions
     id2 = data2.total_all_retencions
-
-    if id1 == id2:
-        if data1.name_subsector > data2.name_subsector:
-           return True
-        else:
-           return False
-    elif id1 > id2:
-        return True
-    else:
-        return False
+    name1 = data1.name_subsector
+    name2 = data2.name_subsector
+    return compare(id1, id2, name1, name2)
 
 def compare_by_rq4(data1: Subsector, data2: Subsector):
     id1 = data1.total_all_costs_and_payroll_expenses
     id2 = data2.total_all_costs_and_payroll_expenses
-
-    if id1 == id2:
-        if data1.name_subsector > data2.name_subsector:
-           return True
-        else:
-           return False
-    elif id1 > id2:
-        return True
-    else:
-        return False
+    name1 = data1.name_subsector
+    name2 = data2.name_subsector
+    return compare(id1, id2, name1, name2)
 
 def compare_by_rq5(data1: Subsector, data2: Subsector):
     id1 = data1.total_all_tax_discounts
     id2 = data2.total_all_tax_discounts
+    name1 = data1.name_subsector
+    nam2 = data2.name_subsector
+    return compare(id1, id2, name1, nam2)
 
-    if id1 == id2:
-        if data1.name_subsector > data2.name_subsector:
-           return True
-        else:
-           return False
-    elif id1 > id2:
-        return True
-    else:
-        return False
+def compare_by_sector_rq6(data1: Sector, data2: Sector):
+    id1 = data1.total_all_net_incomes
+    id2 = data2.total_all_net_incomes
+    name1 = data1.name_sector
+    name2 = data2.name_sector
+    return compare(id1, id2, name1, name2)
+
+def compare_by_subsector_rq6(data1: Subsector, data2: Subsector):
+    id1 = data1.total_all_net_incomes
+    id2 = data2.total_all_net_incomes
+    name1 = data1.name_subsector
+    name2 = data2.name_subsector
+    return compare(id1, id2, name1, name2)
 
 def compare_by_payroll_expenses(data1: EconomicActivity, data2: EconomicActivity):
     id1 = data1.costs_and_payroll_expenses
     id2 = data2.costs_and_payroll_expenses
-
-    if id1 == id2:
-        if data1.name_activity > data2.name_activity:
-           return True
-        else:
-           return False
-    elif id1 > id2:
-        return True
-    else:
-        return False
+    name1 = data1.name_activity
+    name2 = data2.name_activity
+    return compare(id1, id2, name1, name2)
 
 def compare_by_retencions(data1 : EconomicActivity, data2: EconomicActivity):
-
     id1 = data1.total_retencions
     id2 = data2.total_retencions
-
-    if id1 == id2:
-        if data1.name_activity > data2.name_activity:
-            return True
-        else:
-            return False
-    elif id1 > id2:
-        return True
-    else:
-        return False
+    name1 = data1.name_activity
+    name2 = data2.name_activity
+    return compare(id1, id2, name1, name2)
 
 def compare_by_tax_discounts(data1 : EconomicActivity, data2: EconomicActivity):
-
     id1 = data1.tax_discounts
     id2 = data2.tax_discounts
+    name1 = data1.name_activity
+    name2 = data2.name_activity
+    return compare(id1, id2, name1, name2)
 
+def compare(id1, id2, name1, name2):
     if id1 == id2:
-        if data1.name_activity > data2.name_activity:
+        if name1 > name2:
             return True
         else:
             return False

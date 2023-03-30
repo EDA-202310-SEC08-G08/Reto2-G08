@@ -151,6 +151,21 @@ class Year(DataStructs):
                 self.subsector_min = min
         return self.subsector_max, self.subsector_min
 
+    def search_subsector(self, sort_criteria):
+        all_subsectors = self.map_by_subsectors.valueSet()
+
+        for subsector in all_subsectors:
+            if self.subsector_max is None:
+                self.subsector_max = subsector
+            elif sort_criteria(subsector, self.subsector_max):
+                self.subsector_max = subsector
+            if self.subsector_min is None:
+                self.subsector_min = subsector
+            elif sort_criteria(subsector, self.subsector_min) == False:
+                self.subsector_min = subsector
+
+        return self.subsector_max, self.subsector_min
+
 class Sector(Year):
 
     def __init__(self):
@@ -616,6 +631,17 @@ def req_3(data_structs, code_year):
 
     max_subsector, min_subsector =  year_data.search_min_max_subsector(compare_by_rq3)
 
+    min_subsector.sort_data_subsector(compare_by_retencions, "total_retencions")
+
+    return min_subsector
+
+def other_req_3(data_structs, code_year):
+    """
+    Función que soluciona el requerimiento 3
+    """
+    map_year = data_structs.map_by_year
+    year_data = me.getValue(map_year.get(code_year))
+    max_subsector, min_subsector = year_data.search_min_max_subsector(compare_by_rq3)
     min_subsector.sort_data_subsector(compare_by_retencions, "total_retencions")
 
     return min_subsector

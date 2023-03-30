@@ -187,7 +187,7 @@ def req_3(control, code_year):
     Retorna el resultado del requerimiento 3
     """
     # TODO: Modificar el requerimiento 3
-    return model.req_3(control["model"], code_year)
+    return model.other_req_3(control["model"], code_year)
 
 
 def req_4(control):

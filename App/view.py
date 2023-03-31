@@ -173,8 +173,6 @@ def print_charge_data(datastructs: model.DataStructs):
 
     list_years.sort(mini_compare)
 
-    year = model.Year()
-
     columns_activity = ["Año",
                         "Código actividad económica",
                         "Nombre actividad económica",

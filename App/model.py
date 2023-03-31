@@ -55,6 +55,93 @@ class DataStructs:
 
         self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
         self.map_by_year = adt.HashMap(numelements=10, maptype="PROBING", loadfactor=0.5)
+
+    #Funciones comunes a todos los tipos de datos
+
+    def create_tabular(self, columns, attribute, maxim, maxwidth=20):
+
+        list_top = getattr(self, attribute)
+
+
+        if list_top.size() <= maxim:
+
+            return DataStructs._create_table_data(self, list_top, columns)
+
+        elif list_top.size() > maxim:
+            new_list = adt.List()
+
+            for element in list_top.subList(1, (maxim//2)):
+
+                new_list.addLast(element)
+
+            for element in list_top.subList(list_top.size() - (maxim//2)-1, maxim//2):
+
+                new_list.addLast(element)
+
+            return DataStructs._create_table_data(self, new_list, columns)
+    def _create_table_data(self, list: adt.List, columns, maxwidth = 20):
+
+        tabular = []
+
+        for element in list:
+            element_list = DataStructs.create_list(self, columns)
+            tabular.append(element_list)
+
+        table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
+
+        return table
+    def create_table(self, columns, maxwidht=20):
+        tabulate_list = []
+        tabulate_list.append(DataStructs.create_list(self, columns))
+        print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "grid", maxheadercolwidths=maxwidht, maxcolwidths=maxwidht))
+        return tabulate_list
+    def create_vertical_table(self, columns, maxwidth=40):
+
+        tabular_list = []
+        tabular_list.append(DataStructs.create_list(self, columns))
+
+        tabulate_list = []
+
+        for column in columns:
+
+            row = [column, tabular_list[0][columns.index(column)]]
+            tabulate_list.append(row)
+
+        visual_table = tabulate(tabular_data = tabulate_list, headers = ["Attribute", "Value"], tablefmt = "grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
+        return visual_table
+    def create_list(self, columns):
+        tabulate_list = []
+        for data in columns:
+            attribute = self._match_columns(data)
+            tabulate_list.append(attribute)
+        return tabulate_list
+    def _match_columns(self, column):
+        attribute = self.dict_data[column]
+        return attribute
+    def create_table_sector(self, columns: list, maxwidht = 20):
+        tabular = []
+        tabular.append(DataStructs.create_list(self,columns))
+        columns = self._reformatColumns(columns)
+        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=maxwidht, maxheadercolwidths=maxwidht)
+    def create_table_subsector(self, columns: list, maxwidth = 20):
+        tabular = []
+        tabular.append(DataStructs.create_list(self, columns))
+        columns = self._reformatColumns(columns)
+        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=maxwidth, maxheadercolwidths=maxwidth)
+    def _reformatColumns(self, columns: list, value):
+
+        new_columns = []
+
+        for data in columns:
+
+            if data.startswith("Total"):
+
+                data = f"{data} del {value} económico"
+                new_columns.append(data)
+            else:
+                new_columns.append(data)
+
+        return new_columns
 class EconomicActivity():
 
     def __init__(self, data: dict):
@@ -113,39 +200,14 @@ class EconomicActivity():
         self.dict_data["Total Impuesto a cargo"] = self.total_tax_liability
 
     def create_table(self, columns, maxwidht=20):
-        tabulate_list = []
-        tabulate_list.append(self.create_list(columns))
-        print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "grid", maxheadercolwidths=maxwidht, maxcolwidths=maxwidht))
-        return tabulate_list
-
+        return DataStructs.create_table(self, columns, maxwidht)
     def create_vertical_table(self, columns, maxwidth=40):
-
-        tabular_list = []
-        tabular_list.append(self.create_list(columns))
-
-        tabulate_list = []
-
-        for column in columns:
-
-            row = [column, tabular_list[0][columns.index(column)]]
-            tabulate_list.append(row)
-
-        visual_table = tabulate(tabular_data = tabulate_list, headers = ["Attribute", "Value"], tablefmt = "grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
-        return visual_table
-
-    def create_list(self, columns):
-        tabulate_list = []
-        for data in columns:
-            attribute = self._match_columns(data)
-            tabulate_list.append(attribute)
-        return tabulate_list
-
+        return DataStructs.create_vertical_table(self, columns, maxwidth)
     def _match_columns(self, column):
-        attribute = self.dict_data[column]
-        return attribute
+        return DataStructs._match_columns(self, column)
 class Year(DataStructs):
 
-    def __init__(self):
+    def __init__(self, data: EconomicActivity):
 
         self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
         self.map_by_sector = adt.HashMap(numelements=15, maptype="PROBING", loadfactor=0.5)
@@ -154,6 +216,7 @@ class Year(DataStructs):
         self.subsector_min = None
         #HACK Bonus
         self.list_subsectors = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
+        self.dict_data = data.dict_data.copy()
 
     def search_min_max_subsector(self, sort_criteria):
         all_sectors = self.map_by_sector.valueSet()
@@ -182,78 +245,16 @@ class Year(DataStructs):
                 self.subsector_min = sector
         return self.subsector_max, self.subsector_min
 
-
-
     def create_table(self, columns, attribute, maxim, maxwidth=20):
-
-        list_top = getattr(self, attribute)
-
-
-        if list_top.size() <= maxim:
-
-            return self._create_table_data(list_top, columns)
-
-        elif list_top.size() > maxim:
-            new_list = adt.List()
-
-            for element in list_top.subList(1, (maxim//2)):
-
-                new_list.addLast(element)
-
-            for element in list_top.subList(list_top.size() - (maxim//2)-1, maxim//2):
-
-                new_list.addLast(element)
-
-            return self._create_table_data(new_list, columns)
-
-
-    def _create_table_data(self, list: adt.List, columns, maxwidth = 20):
-
-        tabular = []
-
-        for element in list:
-            element_list = element.create_list(columns)
-            tabular.append(element_list)
-
-        table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
-
-        return table
-
-
+        return DataStructs.create_tabular(self, columns, attribute, maxim, maxwidth)
     def _reformatColumns(self, columns: list):
 
-        new_columns = []
-
-        for data in columns:
-
-            if data.startswith("Total"):
-
-                data = f"{data} del subsector económico"
-                new_columns.append(data)
-            else:
-                new_columns.append(data)
-
-        return new_columns
-
-    def create_list(self, columns: list):
-
-        tabular = []
-
-        for data in columns:
-
-            element_list = self._match_columns(data)
-            tabular.append(element_list)
-
-        return tabular
-
+        return DataStructs._reformatColumns(self, columns, "Subsector")
     def _match_columns(self, column):
-
-        attribute = self.dict_data[column]
-
-        return attribute
+        return DataStructs._match_columns(self, column)
 class Sector():
 
-    def __init__(self):
+    def __init__(self, data):
 
         self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
         self.map_by_subsector = adt.HashMap(numelements=21, maptype="PROBING", loadfactor=0.5)
@@ -264,7 +265,7 @@ class Sector():
         self.max_total_favorable_balance = None #NOTE: EconomicActivity
         self.min_total_favorable_balance = None #NOTE: EconomicActivity
         #NOTE: Atributos para el requerimiento 4, 5, 6
-        self.dict_data = {}
+        self.dict_data = data.dict_data.copy()
         self.total_all_net_incomes = 0
         self.total_all_costs_and_expenses = 0
         self.total_all_payable_balance = 0
@@ -274,17 +275,14 @@ class Sector():
         #OPTIMIZE: Atributos propios del sector
         self.name_sector = None
         self.code_sector = None
-
     def give_attributes(self, data : EconomicActivity):
         self.name_sector = data.name_sector
         self.code_sector = data.code_sector
         self.dict_data["Nombre sector económico"] = self.name_sector
         self.dict_data["Código sector económico"] = self.code_sector
-
     def actualize(self, data : EconomicActivity):
         self.sum_values(data)
         self.actualize_dict()
-
     def actualize_dict(self):
         self.dict_data["Total ingresos netos"] = self.total_all_net_incomes
         self.dict_data["Total costos y gastos"] = self.total_all_costs_and_expenses
@@ -294,7 +292,6 @@ class Sector():
         if self.less_apport_subsector is not None and self.more_apport_subsector is not None:
             self.dict_data["Subsector económico que más aportó"] = self.less_apport_subsector.code_subsector
             self.dict_data["Subsector económico que menos aportó"] = self.more_apport_subsector.code_subsector
-
     def sum_values(self, data : EconomicActivity):
         """
         This method takes an instance of the EconomicActivity class as an argument and updates four attributes of the current object in the following way:
@@ -313,7 +310,6 @@ class Sector():
         self.total_all_costs_and_expenses += data.total_cost_and_expenses
         self.total_all_payable_balance += data.total_payable_balance
         self.total_all_favorable_balance += data.total_favorable_balance
-
     def obtain_max_and_min_economic_activity(self, sort_criteria, attribute):
         """
         Función encargada de obtener el máximo y el mínimo de algun parametro de alguna actividad economica
@@ -330,7 +326,6 @@ class Sector():
             self.min_total_favorable_balance = min
 
         return max, min
-
     def obtain_max_and_min_subsector(self, sort_criteria):
         subsector_all_data = self.map_by_subsector.valueSet()
         subsector_all_data.sort(sort_criteria)
@@ -340,47 +335,15 @@ class Sector():
         self.more_apport_subsector = max
         self.actualize_dict()
         return max, min
-
     def create_table_sector(self, columns: list, maxwidht = 20):
-        tabular = []
-        tabular.append(self.create_list(columns))
-        columns = self._reformatColumns(columns)
-        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=maxwidht, maxheadercolwidths=maxwidht)
-
+        return DataStructs.create_table_sector(self, columns, maxwidht)
     def _reformatColumns(self, columns: list):
-
-        new_columns = []
-
-        for data in columns:
-
-            if data.startswith("Total"):
-
-                data = f"{data} del sector económico"
-                new_columns.append(data)
-            else:
-                new_columns.append(data)
-
-        return new_columns
-
-    def create_list(self, columns: list):
-
-        tabular = []
-
-        for data in columns:
-
-            element_list = self._match_columns(data)
-            tabular.append(element_list)
-
-        return tabular
-
-
+        return DataStructs._reformatColumns(self, columns, "sector")
     def _match_columns(self, column):
-        attribute = self.dict_data[column]
-
-        return attribute
+        return DataStructs._match_columns(self, column)
 class Subsector():
 
-    def __init__(self):
+    def __init__(self, data):
 
 
         self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
@@ -400,7 +363,7 @@ class Subsector():
         self.min_activity = None
         self.max_activity = None
 
-        self.dict_data = {}
+        self.dict_data = data.dict_data.copy()
         self.total_all_retencions = 0
         self.total_all_costs_and_payroll_expenses = 0
         self.total_all_tax_discounts = 0
@@ -536,15 +499,7 @@ class Subsector():
 
     def _create_table_data(self, list: adt.List, columns, maxwidth = 20):
 
-        tabular = []
-
-        for element in list:
-            element_list = element.create_list(columns)
-            tabular.append(element_list)
-
-        table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
-
-        return table
+        return DataStructs._create_table_data(self, list, columns, maxwidth)
 
     def _create_table_min_max(self, list: adt.List, columns: list, maxwidth = 20):
         """
@@ -568,42 +523,14 @@ class Subsector():
             return table_min, table_max
 
     def create_table_subsector(self, columns: list, maxwidth = 20):
-        tabular = []
-        tabular.append(self.create_list(columns))
-        columns = self._reformatColumns(columns)
-        return tabulate(tabular, headers=columns, tablefmt="grid", maxcolwidths=maxwidth, maxheadercolwidths=maxwidth)
+        return DataStructs.create_table_subsector(self, columns, maxwidth)
 
     def _reformatColumns(self, columns: list):
 
-        new_columns = []
+        return DataStructs._reformatColumns(self, columns, "Subsector")
 
-        for data in columns:
-
-            if data.startswith("Total"):
-
-                data = f"{data} del subsector económico"
-                new_columns.append(data)
-            else:
-                new_columns.append(data)
-
-        return new_columns
-
-    def create_list(self, columns: list):
-
-        tabular = []
-
-        for data in columns:
-
-            element_list = self._match_columns(data)
-            tabular.append(element_list)
-
-        return tabular
-
-    def _match_columns(self, column):
-
-        attribute = self.dict_data[column]
-
-        return attribute
+    def _match_columns(self, columns):
+        return DataStructs._match_columns(self, columns)
 # Construccion de modelos
 
 
@@ -651,7 +578,7 @@ def add_register_by_year(data_structs : DataStructs, data : EconomicActivity):
 
     if not exist:
 
-        value = Year()
+        value = Year(data)
         value.code = data.year
         map_by_year.put(year, value)
         entry = map_by_year.get(year)
@@ -676,7 +603,7 @@ def add_register_by_sector(year : Year, data : EconomicActivity):
     exist = map_by_sector.contains(sector)
 
     if not exist:
-        value = Sector()
+        value = Sector(data)
         map_by_sector.put(sector, value)
         entry = map_by_sector.get(sector)
         sector_data = me.getValue(entry)
@@ -706,7 +633,7 @@ def add_register_by_subsector(sector : Sector, year: Year, data : EconomicActivi
     exist_year = year_map_by_subsector.contains(subsector)
 
     if not exist:
-        value = Subsector()
+        value = Subsector(data)
         map_by_subsector.put(subsector, value)
         entry = map_by_subsector.get(subsector)
         subsector_data = me.getValue(entry)
@@ -720,7 +647,7 @@ def add_register_by_subsector(sector : Sector, year: Year, data : EconomicActivi
         subsector_data.all_data.addLast(data)
 
     if not exist_year:
-        value = Subsector()
+        value = Subsector(data)
         year_map_by_subsector.put(subsector, value)
         entry = year_map_by_subsector.get(subsector)
         year.list_subsectors.addLast(subsector_data)

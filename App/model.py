@@ -55,7 +55,6 @@ class DataStructs:
 
         self.all_data = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
         self.map_by_year = adt.HashMap(numelements=10, maptype="PROBING", loadfactor=0.5)
-
 class EconomicActivity():
 
     def __init__(self, data: dict):
@@ -252,7 +251,6 @@ class Year(DataStructs):
         attribute = self.dict_data[column]
 
         return attribute
-
 class Sector():
 
     def __init__(self):
@@ -1031,7 +1029,6 @@ def compare_by_tax_liability(data1 : EconomicActivity, data2: EconomicActivity):
     name1 = data1.name_activity
     name2 = data2.name_activity
     return compare(id1, id2, name1, name2)
-
 
 def compare(id1, id2, name1, name2):
     if id1 == id2:

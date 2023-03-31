@@ -187,6 +187,7 @@ def print_charge_data(datastructs: model.DataStructs):
                         "Total saldo a pagar",
                         "Total saldo a favor"]
 
+
     for year in list_years:
         print(year.create_table(columns_activity, "all_data", 6))
 
@@ -492,15 +493,14 @@ if __name__ == "__main__":
         try:
             if int(inputs) == 1:
                 control = new_controller()
-                #DEPRECATED Funciones a quitarse en la sustentacion por que se confunde el usuario
-                printchooseCSV()
-                suffix = fileChoose()
+                suffix = "-large.csv"
                 print("Cargando información de los archivos ....\n")
                 analyze, time = load_data(control, suffix)
-                print(time)
                 all_size = control["model"].all_data.size()
                 msg1 = f"Carga de datos con archivo {suffix}"
                 msg2 = f"Se cargaron {all_size} datos de los archivos"
+                printHeader("0", msg1, msg2)
+                print(time)
                 print_charge_data(control["model"])
 
             elif int(inputs) == 2:

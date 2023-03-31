@@ -110,6 +110,8 @@ class EconomicActivity():
         self.dict_data["Costos y gastos nómina"] = self.costs_and_payroll_expenses
         self.tax_discounts = int(data["Descuentos tributarios"])
         self.dict_data["Descuentos tributarios"] = self.tax_discounts
+        self.total_tax_liability = int(data["Total Impuesto a cargo"])
+        self.dict_data["Total Impuesto a cargo"] = self.total_tax_liability
 
     def create_table(self, columns, maxwidht=20):
         tabulate_list = []
@@ -151,6 +153,8 @@ class Year(DataStructs):
         self.map_by_subsectors = adt.HashMap(numelements=21, maptype="PROBING", loadfactor=0.5)
         self.subsector_max = None
         self.subsector_min = None
+        #HACK Bonus
+        self.list_subsectors = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id)
 
     def search_min_max_subsector(self, sort_criteria):
         all_sectors = self.map_by_sector.valueSet()
@@ -180,7 +184,76 @@ class Year(DataStructs):
         return self.subsector_max, self.subsector_min
 
 
-class Sector(Year):
+
+    def create_table(self, columns, attribute, maxwidth=20):
+
+        list_top = getattr(self, attribute)
+
+
+        if list_top.size() < 12:
+
+            return self._create_table_data(list_top, columns)
+
+        elif list_top.size() > 12:
+            new_list = adt.List()
+
+            for element in list_top.subList(1, 6):
+
+                new_list.addLast(element)
+
+            for element in list_top.subList(list_top.size() - 5, 6):
+
+                new_list.addLast(element)
+
+            return self._create_table_data(new_list, columns)
+
+
+    def _create_table_data(self, list: adt.List, columns, maxwidth = 20):
+
+        tabular = []
+
+        for element in list:
+            element_list = element.create_list(columns)
+            tabular.append(element_list)
+
+        table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
+
+        return table
+
+
+    def _reformatColumns(self, columns: list):
+
+        new_columns = []
+
+        for data in columns:
+
+            if data.startswith("Total"):
+
+                data = f"{data} del subsector económico"
+                new_columns.append(data)
+            else:
+                new_columns.append(data)
+
+        return new_columns
+
+    def create_list(self, columns: list):
+
+        tabular = []
+
+        for data in columns:
+
+            element_list = self._match_columns(data)
+            tabular.append(element_list)
+
+        return tabular
+
+    def _match_columns(self, column):
+
+        attribute = self.dict_data[column]
+
+        return attribute
+
+class Sector():
 
     def __init__(self):
 
@@ -307,7 +380,7 @@ class Sector(Year):
         attribute = self.dict_data[column]
 
         return attribute
-class Subsector(Sector):
+class Subsector():
 
     def __init__(self):
 
@@ -323,6 +396,8 @@ class Subsector(Sector):
         self.total_net_incomes = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
         #NOTE: Atributos para el requerimiento 7
         self.total_costs_and_expenses = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
+        #HACK: Bonus
+        self.total_tax_liability = adt.List(datastructure="ARRAY_LIST", cmpfunction=compare_by_id) #NOTE: List of EconomicActivity
 
         self.min_activity = None
         self.max_activity = None
@@ -335,6 +410,7 @@ class Subsector(Sector):
         self.total_all_costs_and_expenses = 0
         self.total_all_payable_balance = 0
         self.total_all_favorable_balance = 0
+        self.total_all_tax_liability = 0
 
         self.name_subsector = None
         self.code_subsector = None
@@ -365,6 +441,7 @@ class Subsector(Sector):
         self.total_all_costs_and_expenses += data.total_cost_and_expenses
         self.total_all_payable_balance += data.total_payable_balance
         self.total_all_favorable_balance += data.total_favorable_balance
+        self.total_all_tax_liability += data.total_tax_liability
 
     def actualize_dict(self):
         self.dict_data["Total de retenciones"] = self.total_all_retencions
@@ -374,6 +451,7 @@ class Subsector(Sector):
         self.dict_data["Total costos y gastos"] = self.total_all_costs_and_expenses
         self.dict_data["Total saldo a pagar"] = self.total_all_payable_balance
         self.dict_data["Total saldo a favor"] = self.total_all_favorable_balance
+        self.dict_data["Total de Impuestos a cargo"] = self.total_all_tax_liability
 
         if self.min_activity is not None and self.max_activity is not None:
 
@@ -408,6 +486,8 @@ class Subsector(Sector):
             self.actualize_dict()
         elif attribute == "total_costs_and_expenses":
             self.total_costs_and_expenses = subsector_all_data
+        elif attribute == "total_tax_liability":
+            self.total_tax_liability = subsector_all_data
 
     def is_list_created(func: FunctionType):
         def decorator(self, *args, **kwargs):
@@ -434,7 +514,7 @@ class Subsector(Sector):
 
         list_top = getattr(self, attribute)
 
-        if list_top.size() < top:
+        if list_top.size() <= top:
 
             return self._create_table_data(list_top, columns)
 
@@ -644,6 +724,7 @@ def add_register_by_subsector(sector : Sector, year: Year, data : EconomicActivi
         value = Subsector()
         year_map_by_subsector.put(subsector, value)
         entry = year_map_by_subsector.get(subsector)
+        year.list_subsectors.addLast(subsector_data)
         subsector_data = me.getValue(entry)
         subsector_data.give_attributes(data)
         subsector_data.actualize(data)
@@ -813,12 +894,24 @@ def req_7(data_structs: DataStructs, code_year: int, code_sector: str):
     return subsector
 
 
-def req_8(data_structs):
+def req_8(data_structs, code_year, top):
     """
     Función que soluciona el requerimiento 8
     """
     # TODO: Realizar el requerimiento 8
-    pass
+    map_years = data_structs.map_by_year
+    if not map_years.contains(code_year):
+        return False
+    year = me.getValue(map_years.get(code_year))
+    year.list_subsectors.sort(compare_subsectors_by_total_tax_liability)
+
+    tables_subsector = adt.List()
+
+    for subsector in year.list_subsectors:
+        subsector.sort_data_subsector(compare_by_tax_liability, "total_tax_liability")
+        tables_subsector.addLast(subsector)
+
+    return year, tables_subsector
 
 
 #NOTE Funciones utilizadas para comparar elementos dentro de una lista
@@ -888,6 +981,13 @@ def compare_by_subsector_rq6(data1: Subsector, data2: Subsector):
     name2 = data2.name_subsector
     return compare(id1, id2, name1, name2)
 
+def compare_subsectors_by_total_tax_liability(data1: Subsector, data2: Subsector):
+    id1 = data1.total_all_tax_liability
+    id2 = data2.total_all_tax_liability
+    name1 = data1.name_subsector
+    name2 = data2.name_subsector
+    return compare(id1, id2, name1, name2)
+
 def compare_by_payroll_expenses(data1: EconomicActivity, data2: EconomicActivity):
     id1 = data1.costs_and_payroll_expenses
     id2 = data2.costs_and_payroll_expenses
@@ -923,6 +1023,13 @@ def compare_by_total_costs_and_expenses(data1 : EconomicActivity, data2: Economi
     name1 = data1.name_activity
     name2 = data2.name_activity
     return reverse_compare(id1, id2, name1, name2)
+
+def compare_by_tax_liability(data1 : EconomicActivity, data2: EconomicActivity):
+    id1 = data1.total_tax_liability
+    id2 = data2.total_tax_liability
+    name1 = data1.name_activity
+    name2 = data2.name_activity
+    return compare(id1, id2, name1, name2)
 
 
 def compare(id1, id2, name1, name2):

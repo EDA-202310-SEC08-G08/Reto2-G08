@@ -204,13 +204,14 @@ def req_7(control, code_year, code_sector):
 
     return model.req_7(control["model"], code_year, code_sector)
 
-
-def req_8(control):
+@timer_y_mem
+def req_8(control, code_year, top):
     """
     Retorna el resultado del requerimiento 8
     """
     # TODO: Modificar el requerimiento 8
-    pass
+
+    return model.req_8(control["model"], code_year, top)
 
 
 

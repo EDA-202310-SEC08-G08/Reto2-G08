@@ -32,6 +32,7 @@ from DISClib.Algorithms.Sorting import quicksort as qs
 assert cf
 from tabulate import tabulate
 import traceback
+import model
 
 """
 La vista se encarga de la interacción con el usuario
@@ -412,12 +413,41 @@ def print_req_7(control, code_year, code_subsector, top:int):
     print(table)
 
 
-def print_req_8(control):
+def print_req_8(control, code_year, top):
     """
         Función que imprime la solución del Requerimiento 8 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 8
-    pass
+
+    data, time = controller.req_8(control, code_year, top)
+    print(time)
+    year_data = data[0]
+    list_subsectors = data[1]
+
+
+    columns_subsector = ["Código sector económico",
+                         "Nombre sector económico",
+                         "Código subsector económico",
+                         "Nombre subsector económico",
+                         "Total de Impuestos a cargo",
+                         "Total ingresos netos",
+                         "Total costos y gastos",
+                         "Total saldo a pagar",
+                         "Total saldo a favor",]
+
+    columns_activity = ["Código actividad económica",
+                        "Nombre actividad económica",
+                        "Total Impuesto a cargo",
+                        "Total ingresos netos",
+                        "Total costos y gastos",
+                        "Total saldo a pagar",
+                        "Total saldo a favor"]
+
+    table_year = year_data.create_table(columns_subsector, "list_subsectors")
+    print(table_year)
+    for subsector in list_subsectors:
+        table_subsector = subsector.create_table_top(columns_activity, top, "total_tax_liability")
+        print(table_subsector)
 
 
 # Se crea el controlador asociado a la vista
@@ -484,7 +514,9 @@ if __name__ == "__main__":
                 print_req_7(control, code_year, code_subsector, top)
 
             elif int(inputs) == 9:
-                print_req_8(control)
+                code_year = int(input("Ingrese el año a buscar: "))
+                top = int(input("Ingrese el número TOP actividades a mostrar: "))
+                print_req_8(control, code_year, top)
 
             elif int(inputs) == 0:
                 working = False

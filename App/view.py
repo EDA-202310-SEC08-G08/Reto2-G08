@@ -160,9 +160,35 @@ def printHeader(rqn, msg_rq, msg_answer):
 
     return control
 
-def print_charge_data(control):
-    pass
+def print_charge_data(datastructs: model.DataStructs):
 
+    map_years  = datastructs.map_by_year
+    list_years = map_years.valueSet()
+
+    def mini_compare(year1, year2):
+        if year1.code > year2.code:
+            return True
+        else:
+            return False
+
+    list_years.sort(mini_compare)
+
+    year = model.Year()
+
+    columns_activity = ["Año",
+                        "Código actividad económica",
+                        "Nombre actividad económica",
+                        "Código sector económico",
+                        "Nombre sector económico",
+                        "Código subsector económico",
+                        "Nombre subsector económico",
+                        "Total ingresos netos",
+                        "Total costos y gastos",
+                        "Total saldo a pagar",
+                        "Total saldo a favor"]
+
+    for year in list_years:
+        print(year.create_table(columns_activity, "all_data", 6))
 
 
 def print_data(control, id):
@@ -443,7 +469,7 @@ def print_req_8(control, code_year, top):
                         "Total saldo a pagar",
                         "Total saldo a favor"]
 
-    table_year = year_data.create_table(columns_subsector, "list_subsectors")
+    table_year = year_data.create_table(columns_subsector, "list_subsectors", 12)
     print(table_year)
     for subsector in list_subsectors:
         table_subsector = subsector.create_table_top(columns_activity, top, "total_tax_liability")
@@ -475,6 +501,7 @@ if __name__ == "__main__":
                 all_size = control["model"].all_data.size()
                 msg1 = f"Carga de datos con archivo {suffix}"
                 msg2 = f"Se cargaron {all_size} datos de los archivos"
+                print_charge_data(control["model"])
 
             elif int(inputs) == 2:
                 code_year = int(input("Ingrese el año a buscar: "))

@@ -115,14 +115,14 @@ class EconomicActivity():
 
     def create_table(self, columns, maxwidht=20):
         tabulate_list = []
-        tabulate_list.append(self.make_list(columns))
+        tabulate_list.append(self.create_list(columns))
         print(tabulate(tabular_data = tabulate_list, headers = columns, tablefmt = "grid", maxheadercolwidths=maxwidht, maxcolwidths=maxwidht))
         return tabulate_list
 
     def create_vertical_table(self, columns, maxwidth=40):
 
         tabular_list = []
-        tabular_list.append(self.make_list(columns))
+        tabular_list.append(self.create_list(columns))
 
         tabulate_list = []
 
@@ -134,7 +134,7 @@ class EconomicActivity():
         visual_table = tabulate(tabular_data = tabulate_list, headers = ["Attribute", "Value"], tablefmt = "grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
         return visual_table
 
-    def make_list(self, columns):
+    def create_list(self, columns):
         tabulate_list = []
         for data in columns:
             attribute = self._match_columns(data)
@@ -185,23 +185,23 @@ class Year(DataStructs):
 
 
 
-    def create_table(self, columns, attribute, maxwidth=20):
+    def create_table(self, columns, attribute, maxim, maxwidth=20):
 
         list_top = getattr(self, attribute)
 
 
-        if list_top.size() < 12:
+        if list_top.size() <= maxim:
 
             return self._create_table_data(list_top, columns)
 
-        elif list_top.size() > 12:
+        elif list_top.size() > maxim:
             new_list = adt.List()
 
-            for element in list_top.subList(1, 6):
+            for element in list_top.subList(1, (maxim//2)):
 
                 new_list.addLast(element)
 
-            for element in list_top.subList(list_top.size() - 5, 6):
+            for element in list_top.subList(list_top.size() - (maxim//2)-1, maxim//2):
 
                 new_list.addLast(element)
 
@@ -541,7 +541,7 @@ class Subsector():
         tabular = []
 
         for element in list:
-            element_list = element.make_list(columns)
+            element_list = element.create_list(columns)
             tabular.append(element_list)
 
         table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
@@ -654,6 +654,7 @@ def add_register_by_year(data_structs : DataStructs, data : EconomicActivity):
     if not exist:
 
         value = Year()
+        value.code = data.year
         map_by_year.put(year, value)
         entry = map_by_year.get(year)
         year_data = me.getValue(entry)

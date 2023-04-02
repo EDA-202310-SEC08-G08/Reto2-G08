@@ -84,7 +84,7 @@ class DataStructs:
         tabular = []
 
         for element in list:
-            element_list = DataStructs.create_list(self, columns)
+            element_list = DataStructs.create_list(self, columns, element)
             tabular.append(element_list)
 
         table = tabulate(tabular, headers=columns, tablefmt="grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
@@ -109,14 +109,14 @@ class DataStructs:
 
         visual_table = tabulate(tabular_data = tabulate_list, headers = ["Attribute", "Value"], tablefmt = "grid", maxheadercolwidths=maxwidth, maxcolwidths=maxwidth)
         return visual_table
-    def create_list(self, columns):
+    def create_list(self, columns, element):
         tabulate_list = []
         for data in columns:
-            attribute = self._match_columns(data)
+            attribute = DataStructs._match_columns(self, data, element)
             tabulate_list.append(attribute)
         return tabulate_list
-    def _match_columns(self, column):
-        attribute = self.dict_data[column]
+    def _match_columns(self, column, element):
+        attribute = element.dict_data[column]
         return attribute
     def create_table_sector(self, columns: list, maxwidht = 20):
         tabular = []

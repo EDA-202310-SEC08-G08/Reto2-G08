@@ -748,7 +748,7 @@ def req_4(data_structs, code_year):
     """
     Función que soluciona el requerimiento 4
     """
-    # TODO: Realizar el requerimiento 4
+    # CHECK: Realizar el requerimiento 4
 
     map_year = data_structs.map_by_year
     if not map_year.contains(code_year):
@@ -763,7 +763,7 @@ def req_5(data_structs, code_year):
     """
     Función que soluciona el requerimiento 5
     """
-    # TODO: Realizar el requerimiento 5
+    # CHECK: Realizar el requerimiento 5
     map_year = data_structs.map_by_year
     if not map_year.contains(code_year):
         return False
@@ -778,7 +778,7 @@ def req_6(data_structs, code_year):
     """
     Función que soluciona el requerimiento 6
     """
-    # TODO: Realizar el requerimiento 6
+    # CHECK: Realizar el requerimiento 6
     map_year = data_structs.map_by_year
     if not map_year.contains(code_year):
         return False
@@ -795,7 +795,7 @@ def req_7(data_structs: DataStructs, code_year: int, code_sector: str):
     """
     Función que soluciona el requerimiento 7
     """
-    # TODO: Realizar el requerimiento 7
+    # CHECK: Realizar el requerimiento 7
 
     map_years = data_structs.map_by_year
     if not map_years.contains(code_year):
@@ -814,7 +814,7 @@ def req_8(data_structs, code_year, top):
     """
     Función que soluciona el requerimiento 8
     """
-    # TODO: Realizar el requerimiento 8
+    # CHECK: Realizar el requerimiento 8
     map_years = data_structs.map_by_year
     if not map_years.contains(code_year):
         return False

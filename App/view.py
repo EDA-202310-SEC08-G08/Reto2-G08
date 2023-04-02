@@ -187,7 +187,13 @@ def print_charge_data(datastructs: model.DataStructs):
 
 
     for year in list_years:
+        if year.all_data.size() > 6:
+            print(f"There are {year.all_data.size()} economic activities in the year {str(year.code)} \n")
+            print(f"The first 3 and the last 3 economic activities of the year  {str(year.code)}   are:\n")
+        else:
+            print(f"There are only {year.all_data.size()} economic activities in the year {str(year.code)} \n")
         print(year.create_table(columns_activity, "all_data", 6))
+        print("\n")
 
 
 def print_data(control, id):
@@ -499,6 +505,7 @@ if __name__ == "__main__":
                 msg2 = f"Se cargaron {all_size} datos de los archivos"
                 printHeader("0", msg1, msg2)
                 print(time)
+                print("\n")
                 print_charge_data(control["model"])
 
             elif int(inputs) == 2:

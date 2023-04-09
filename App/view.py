@@ -215,7 +215,12 @@ def print_req_1(control, code_year, code_sector):
     if activity is False:
         return (print("\nNo hay datos para el año y sector ingresados\n"))
 
+    msg1 = f"Find the economic activity with the highest balance due (Total saldo a pagar) for the year {code_year} and sector {code_sector}"
+    msg2 = f"The economic activity with the highest balance due (Total saldo a pagar) for the year {code_year} and sector {code_sector} is:"
+    printHeader(1, msg1, msg2)
+    print(f"Tiempo de Ejecucion y/o memoria: ")
     print(time)
+    print("\n")
 
     return activity.create_table(["Código actividad económica", "Nombre actividad económica","Código subsector económico", "Nombre subsector económico",
                                   "Total ingresos netos", "Total costos y gastos", "Total saldo a pagar", "Total saldo a favor"	])
@@ -231,7 +236,12 @@ def print_req_2(control, code_year, code_sector):
     if activity is False:
         return (print("\nNo hay datos para el año y sector ingresados\n"))
 
+    msg1 = f"Find the economic activity with the highest balance in favor (Total saldo a favor) for the year {code_year} and sector {code_sector}"
+    msg2 = f"The economic activity with the highest balance due (Total saldo a favor) for the year {code_year} and sector {code_sector} is:"
+    printHeader(2, msg1, msg2)
+    print(f"Tiempo de Ejecucion y/o memoria: ")
     print(time)
+    print("\n")
 
     return activity.create_table(["Código actividad económica", "Nombre actividad económica","Código subsector económico", "Nombre subsector económico",
                                   "Total ingresos netos", "Total costos y gastos","Total saldo a pagar", "Total saldo a favor"])
@@ -244,7 +254,6 @@ def print_req_3(control, code_year):
     # TODO: Imprimir el resultado del requerimiento 3
     subsector, time = controller.req_3(control, code_year)
 
-    print(time)
 
     if subsector is False:
         return (print( "\nNo hay datos para el año ingresado\n"))
@@ -270,16 +279,26 @@ def print_req_3(control, code_year):
     subsector_table = subsector.create_table_subsector(columns_sector)
     lists = subsector.create_tables_min_max("total_retencions", columns_activity)
 
+    msg1 = f"Find the subsector with the lowest total retentions for the year {code_year}"
+    msg2 = f"Economic subsector with the lowest total retentions for the year {code_year} is:"
+
+    printHeader(3, msg1, msg2)
+    print(f"Tiempo de Ejecucion y/o memoria: ")
+    print(time)
+    print("\n")
     if type(lists) == tuple:
         min_table = lists[0]
         max_table = lists[1]
 
         print(subsector_table)
+        print("\n ---Contribuyentes con menor aporte--- \n")
         print(min_table)
+        print("\n ---Contribuyentes con mayor aporte--- \n")
         print(max_table)
 
     else:
         print(subsector_table)
+        print(f"\n ---Contribuyentes (Solo existen {subsector.all_data.size()} actividades economicas)--- \n")
         print(lists)
 
 
@@ -316,16 +335,25 @@ def print_req_4(control, code_year):
     subsector_table = subsector.create_table_subsector(columns_sector)
     lists = subsector.create_tables_min_max("total_costs_and_payroll_expenses", columns_activity)
 
+    msg1 = f"Find the subsector with the highest total withholdings (Costos y gastos de nomina) for the year {code_year}"
+    msg2 = f"Economic subsector with the highest total withholdings (Costos y gastos de nomina) for the year {code_year} is:"
+    printHeader(4, msg1, msg2)
+    print(f"Tiempo de Ejecucion y/o memoria: ")
+    print(time)
+    print("\n")
     if type(lists) == tuple:
         min_table = lists[0]
         max_table = lists[1]
 
         print(subsector_table)
+        print("\n ---Contribuyentes con menor aporte--- \n")
         print(min_table)
+        print("\n ---Contribuyentes con mayor aporte--- \n")
         print(max_table)
 
     else:
         print(subsector_table)
+        print(f"\n ---Contribuyentes (Solo existen {subsector.all_data.size()} actividades economicas)--- \n")
         print(lists)
 
 
@@ -361,17 +389,25 @@ def print_req_5(control, code_year):
 
     subsector_table = subsector.create_table_subsector(columns_sector)
     lists = subsector.create_tables_min_max("tax_discounts", columns_activity)
-
+    msg1 = f"Find the subsector with the highest total withholdings (Descuentos Tributarios) for the year {code_year}"
+    msg2 = f"Economic subsector with the highest total withholdings (Descuentos Tributarios) for the year {code_year} is:"
+    printHeader(5, msg1, msg2)
+    print(f"Tiempo de Ejecucion y/o memoria: ")
+    print(time)
+    print("\n")
     if type(lists) == tuple:
         min_table = lists[0]
         max_table = lists[1]
 
         print(subsector_table)
+        print("\n ---Contribuyentes con menor aporte--- \n")
         print(min_table)
+        print("\n ---Contribuyentes con mayor aporte--- \n")
         print(max_table)
 
     else:
         print(subsector_table)
+        print(f"\n ---Contribuyentes (Solo existen {subsector.all_data.size()} actividades economicas)--- \n")
         print(lists)
 
 
@@ -411,8 +447,16 @@ def print_req_6(control, code_year):
     table_max_subsector = max_subsector.create_table_subsector(columns_subsector, [15,15,15,15,15,15])
     table_min_subsector = min_subsector.create_table_subsector(columns_subsector, [15,15,15,15,15,15])
 
+    msg1 = f"Find the sector with the highest total net income (Total Ingresos Netos) for the year {code_year}"
+    msg2 = f"Sector economico que mas aporto en el {code_year} es:"
+    printHeader(6, msg1, msg2)
+    print(f"Tiempo de Ejecucion y/o memoria: ")
+    print(time)
+    print("\n")
     print(table_sector)
+    print("\n ---Subsector que mas contribuyo--- \n")
     print(table_max_subsector)
+    print("\n ---Subsector que menos contribuyo--- \n")
     print(table_min_subsector)
 
 
@@ -427,8 +471,6 @@ def print_req_7(control, code_year, code_subsector, top:int):
     if subsector is False:
         return print("\n No hay datos para el año y subsector ingresados\n")
 
-    print(time)
-
     columns_activity = ["Código actividad económica",
                         "Nombre actividad económica",
                         "Código sector económico",
@@ -440,7 +482,12 @@ def print_req_7(control, code_year, code_subsector, top:int):
                         "Total saldo a favor"]
 
     table = subsector.create_table_top(columns_activity, top, "total_costs_and_expenses")
-
+    msg1 = f"Find the top {top} activities with the lowest total costs and expenses (Total Costos y Gastos) for the year {code_year} and subsector {code_subsector}"
+    msg2 = f"There are {subsector.all_data.size()} activities in the subsector {code_subsector} for the year {code_year}"
+    printHeader(7, msg1, msg2)
+    print(f"Tiempo de Ejecucion y/o memoria: ")
+    print(time)
+    print("\n")
     print(table)
 
 
@@ -451,7 +498,6 @@ def print_req_8(control, code_year, top):
     # TODO: Imprimir el resultado del requerimiento 8
 
     data, time = controller.req_8(control, code_year, top)
-    print(time)
     year_data = data[0]
     list_subsectors = data[1]
 
@@ -475,8 +521,15 @@ def print_req_8(control, code_year, top):
                         "Total saldo a favor"]
 
     table_year = year_data.create_table(columns_subsector, "list_subsectors", 12)
+    msg1 = f"Find the top {top} activities for each  with the highest total tax liability (Total Impuestos a Cargo) for each subsector of the year {code_year}"
+    msg2 = f"TOP Subsectors with the highest total tax liability (Total Impuestos a Cargo) {code_year}"
+    printHeader(8, msg1, msg2)
+    print(f"Tiempo de Ejecucion y/o memoria: ")
+    print(time)
+    print("\n")
     print(table_year)
     for subsector in list_subsectors:
+        print(f"--------------The subsector {subsector.code_subsector} has {subsector.all_data.size()} activities--------------")
         table_subsector = subsector.create_table_top(columns_activity, top, "total_tax_liability")
         print(table_subsector)
 
